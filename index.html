@@ -12,112 +12,71 @@
 <body class="min-h-screen bg-slate-950 text-white">
 
     <header class="border-b border-slate-800">
-
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-
             <h1 class="text-xl font-black">
                 NBA<span class="text-blue-500">2K</span>
             </h1>
 
             <button
                 id="logoutButton"
-                class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-semibold">
-
+                class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-semibold text-sm">
                 Logout
-
             </button>
-
         </div>
-
     </header>
-
 
     <main class="max-w-6xl mx-auto px-6 py-12">
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <p class="text-slate-400">
+                    Benvenuto,
+                </p>
+                <h2 id="username" class="text-3xl font-bold mt-1">
+                    Caricamento...
+                </h2>
+            </div>
 
-            <p class="text-slate-400">
-                Benvenuto,
-            </p>
-
-            <h2
-                id="username"
-                class="text-3xl font-bold mt-1">
-
-                Caricamento...
-
-            </h2>
-
+            <a href="upload.html"
+               class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition shadow-lg">
+                + Carica Nuova Partita
+            </a>
         </div>
 
     </main>
 
-
     <script type="module">
-
         import { supabase } from "./js/supabase.js";
 
-
         async function loadProfile() {
-
-            const {
-                data: {
-                    user
-                }
-            } = await supabase.auth.getUser();
-
+            const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-
-                window.location.href =
-                    "login.html";
-
+                window.location.href = "login.html";
                 return;
-
             }
 
-
-            const {
-                data: profile,
-                error
-            } = await supabase
+            const { data: profile, error } = await supabase
                 .from("nba_users")
                 .select("*")
                 .eq("id", user.id)
                 .single();
 
-
             if (error) {
-
                 console.error(error);
-
                 return;
-
             }
 
-
-            document.getElementById("username")
-                .textContent =
-                profile.display_name ||
-                profile.username;
-
+            document.getElementById("username").textContent =
+                profile.display_name || profile.username;
         }
 
-
-        document
-            .getElementById("logoutButton")
-            .addEventListener("click", async () => {
-
-                await supabase.auth.signOut();
-
-                window.location.href =
-                    "login.html";
-
-            });
-
+        document.getElementById("logoutButton").addEventListener("click", async () => {
+            await supabase.auth.signOut();
+            window.location.href = "login.html";
+        });
 
         loadProfile();
-
     </script>
 
 </body>
