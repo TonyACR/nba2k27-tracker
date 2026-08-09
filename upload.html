@@ -56,7 +56,7 @@
             id="analyzeButton"
             class="mt-6 w-full bg-blue-600 hover:bg-blue-500
                    rounded-xl py-3 font-bold transition flex items-center justify-center gap-2">
-            <span id="btnText">Analizza screenshot con AI Vision</span>
+            <span id="btnText">Analizza screenshot con baidu/Unlimited-OCR (AI)</span>
         </button>
 
         <div id="message" class="hidden mt-5 rounded-xl px-4 py-3 text-sm"></div>
@@ -67,7 +67,7 @@
             <div class="flex justify-between items-center mb-5">
                 <div>
                     <h2 class="text-xl font-bold">Giocatori e Statistiche Rilevati</h2>
-                    <p class="text-xs text-slate-400">Verifica i dati estratti prima di salvare</p>
+                    <p class="text-xs text-slate-400">Verifica o modifica i dati estratti prima di salvare</p>
                 </div>
                 <button id="addPlayerBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1.5 rounded-lg border border-slate-700 font-semibold">
                     + Aggiungi Giocatore
@@ -88,6 +88,7 @@
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
+import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
 const screenshotInput = document.getElementById("screenshot");
 const analyzeButton = document.getElementById("analyzeButton");
@@ -100,6 +101,16 @@ const playersContainer = document.getElementById("playersContainer");
 
 let rawOcrText = "";
 
+// Helper: Converti il file locale in stringa Base64 Data URL
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+    });
+}
+
 // MESSAGGI
 function showMessage(text, type = "error") {
     message.textContent = text;
@@ -107,6 +118,8 @@ function showMessage(text, type = "error") {
 
     if (type === "success") {
         message.classList.add("bg-green-500/10", "border-green-500/20", "text-green-400");
+    } else if (type === "info") {
+        message.classList.add("bg-blue-500/10", "border-blue-500/20", "text-blue-400");
     } else {
         message.classList.add("bg-red-500/10", "border-red-500/20", "text-red-400");
     }
@@ -122,48 +135,84 @@ async function checkUser() {
     return user;
 }
 
-// PARSER TESTO PER NBA 2K
+// PARSER PER TESTO E TABELLE MARKDOWN RESTITUITE DA BAIDU UNLIMITED-OCR
 function parse2KBoxScore(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     const players = [];
 
-    const gradeRegex = /\b(A\+|A|A-|B\+|B|B-|C\+|C|C-|D\+|D|F)\b/i;
+    const gradeRegex = /\b(A\+|A-|A|B\+|B-|B|C\+|C-|C|D\+|D-|D|F)\b/i;
 
     lines.forEach(line => {
-        // Cerca cifre numeriche nella riga (PTS, REB, AST, STL, BLK)
-        const numbers = line.match(/\b\d+\b/g);
+        // Ignora intestazioni
+        if (line.toUpperCase().includes('PTS') && line.toUpperCase().includes('REB')) return;
+        if (line.includes('---')) return;
 
-        if (numbers && numbers.length >= 2) {
-            const gradeMatch = line.match(gradeRegex);
-            const grade = gradeMatch ? gradeMatch[0].toUpperCase() : "-";
+        // Caso 1: Tabella Markdown (| Player | PTS | REB | ...)
+        if (line.includes('|')) {
+            const parts = line.split('|').map(p => p.trim()).filter(p => p.length > 0);
+            if (parts.length >= 2) {
+                const name = parts[0];
+                const nums = [];
+                let grade = "-";
 
-            // Pulisce la riga mantenendo il nickname
-            let name = line
-                .replace(gradeRegex, '')
-                .replace(/\b\d+\b/g, '')
-                .replace(/[^a-zA-Z0-9_\-\s]/g, '')
-                .trim();
+                for (let i = 1; i < parts.length; i++) {
+                    const gMatch = parts[i].match(gradeRegex);
+                    if (gMatch && grade === "-") {
+                        grade = gMatch[0].toUpperCase();
+                    } else {
+                        const num = parseInt(parts[i].replace(/\D/g, ''));
+                        if (!isNaN(num)) {
+                            nums.push(num);
+                        }
+                    }
+                }
 
-            if (!name || name.length < 2) {
-                name = "Giocatore " + (players.length + 1);
+                if (name && nums.length >= 1) {
+                    players.push({
+                        name: name,
+                        pts: nums[0] ?? 0,
+                        reb: nums[1] ?? 0,
+                        ast: nums[2] ?? 0,
+                        stl: nums[3] ?? 0,
+                        blk: nums[4] ?? 0,
+                        grade: grade
+                    });
+                }
             }
+        } else {
+            // Caso 2: Riga di testo semplice
+            const numbers = line.match(/\b\d+\b/g);
+            if (numbers && numbers.length >= 2) {
+                const gradeMatch = line.match(gradeRegex);
+                const grade = gradeMatch ? gradeMatch[0].toUpperCase() : "-";
 
-            players.push({
-                name: name,
-                pts: parseInt(numbers[0]) || 0,
-                reb: numbers[1] ? parseInt(numbers[1]) : 0,
-                ast: numbers[2] ? parseInt(numbers[2]) : 0,
-                stl: numbers[3] ? parseInt(numbers[3]) : 0,
-                blk: numbers[4] ? parseInt(numbers[4]) : 0,
-                grade: grade
-            });
+                let name = line
+                    .replace(gradeRegex, '')
+                    .replace(/\b\d+\b/g, '')
+                    .replace(/[^a-zA-Z0-9_\-\s]/g, '')
+                    .trim();
+
+                if (!name || name.length < 2) {
+                    name = "Giocatore " + (players.length + 1);
+                }
+
+                players.push({
+                    name: name,
+                    pts: parseInt(numbers[0]) || 0,
+                    reb: parseInt(numbers[1]) || 0,
+                    ast: parseInt(numbers[2]) || 0,
+                    stl: numbers[3] ? parseInt(numbers[3]) : 0,
+                    blk: numbers[4] ? parseInt(numbers[4]) : 0,
+                    grade: grade
+                });
+            }
         }
     });
 
     return players;
 }
 
-// ANALISI OCR TRAMITE API REST OCR.SPACE (ENGINE 2)
+// ANALISI OCR TRAMITE HUGGING FACE (baidu/Unlimited-OCR)
 analyzeButton.addEventListener("click", async () => {
     const file = screenshotInput.files[0];
     if (!file) {
@@ -172,60 +221,60 @@ analyzeButton.addEventListener("click", async () => {
     }
 
     analyzeButton.disabled = true;
-    btnText.textContent = "Analisi dello screenshot in corso...";
-    message.classList.add("hidden");
+    btnText.textContent = "Connessione a baidu/Unlimited-OCR (AI)...";
+    showMessage("Connessione ad Hugging Face... Se il modello era in riposo, l'avvio potrebbe richiedere 15-20 secondi.", "info");
 
     try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("apikey", "helloworld"); // API Key pubblica di test
-        formData.append("language", "eng");
-        formData.append("isTable", "true");
-        formData.append("OCREngine", "2"); // Engine 2: Ottimizzato per numeri e interfacce grafiche
+        // 1. Converti file in Base64 Data URL (risolve l'errore "Invalid URL")
+        const base64Image = await fileToBase64(file);
 
-        const response = await fetch("https://api.ocr.space/parse/image", {
-            method: "POST",
-            body: formData
-        });
+        // 2. Connettiti allo space baidu/Unlimited-OCR
+        const client = await Client.connect("baidu/Unlimited-OCR");
 
-        if (!response.ok) {
-            throw new Error("Errore durante la comunicazione con l'API OCR.");
+        btnText.textContent = "Elaborazione immagine in corso...";
+
+        // 3. Chiamata all'endpoint
+        let result;
+        try {
+            result = await client.predict("/predict", [
+                base64Image,
+                "document parsing."
+            ]);
+        } catch (errPositional) {
+            console.warn("Chiamata posizionale fallita, provo con parametri con nome...", errPositional);
+            result = await client.predict("/predict", {
+                image: base64Image,
+                task_prompt: "document parsing."
+            });
         }
 
-        const data = await response.json();
+        console.log("Risposta baidu/Unlimited-OCR:", result);
 
-        if (data.IsErroredOnProcessing) {
-            throw new Error(data.ErrorMessage ? data.ErrorMessage[0] : "Errore elaborazione immagine.");
+        rawOcrText = Array.isArray(result.data) ? result.data.join("\n") : String(result.data || "");
+
+        if (!rawOcrText || rawOcrText.trim().length === 0) {
+            throw new Error("Nessun testo estratto dall'immagine.");
         }
-
-        rawOcrText = data.ParsedResults && data.ParsedResults[0] ? data.ParsedResults[0].ParsedText : "";
-
-        if (!rawOcrText) {
-            throw new Error("Nessun testo rilevato nella foto.");
-        }
-
-        console.log("Testo OCR estratto:", rawOcrText);
 
         const players = parse2KBoxScore(rawOcrText);
 
         if (players.length === 0) {
-            // Se la foto era buia/sfuocata, crea una scheda per l'inserimento
-            players.push({ name: "Giocatore 1", pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, grade: "-" });
+            players.push({ name: "Giocatore 1", pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, grade: "A+" });
         }
 
         displayPlayers(players);
-        showMessage("Analisi completata! Modifica o conferma le statistiche.", "success");
+        showMessage("Estratto con successo tramite baidu/Unlimited-OCR!", "success");
 
     } catch (error) {
-        console.error("Errore OCR:", error);
-        showMessage("Errore durante l'analisi: " + error.message, "error");
+        console.error("Errore HF OCR:", error);
+        showMessage("Errore nell'estrazione: " + error.message, "error");
     }
 
     analyzeButton.disabled = false;
-    btnText.textContent = "Analizza screenshot con AI Vision";
+    btnText.textContent = "Analizza screenshot con baidu/Unlimited-OCR (AI)";
 });
 
-// RENDERING SCHEDE GIOCATORI
+// RENDERING SCHEDE GIOCATORI MODIFICABILI
 function displayPlayers(players) {
     playersContainer.innerHTML = "";
     players.forEach(p => addPlayerCard(p));
@@ -297,19 +346,17 @@ saveButton.addEventListener("click", async () => {
     saveButton.textContent = "Salvataggio su Supabase...";
 
     try {
-        // 1. Inserisci Match
         const { data: match, error: matchError } = await supabase
             .from("nba_matches")
             .insert({
                 user_id: user.id,
-                ocr_raw_text: rawOcrText || "Analisi OCR API"
+                ocr_raw_text: rawOcrText || "Analisi baidu/Unlimited-OCR"
             })
             .select()
             .single();
 
         if (matchError) throw matchError;
 
-        // 2. Inserisci Statistiche Giocatori
         const playersData = [];
         cards.forEach(card => {
             playersData.push({
