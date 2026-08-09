@@ -17,7 +17,10 @@
 
 <div class="max-w-6xl mx-auto px-6 py-8">
 
-    <!-- HEADER -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
     <div class="flex items-center justify-between mb-10">
 
         <div>
@@ -40,15 +43,20 @@
 
             <button
                 id="logoutButton"
+                type="button"
                 class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-semibold text-sm transition">
                 Logout
             </button>
 
         </div>
+
     </div>
 
 
-    <!-- TITLE -->
+    <!-- =====================================================
+         TITLE
+    ====================================================== -->
+
     <div class="mb-8">
 
         <h1 class="text-3xl font-black">
@@ -57,13 +65,16 @@
 
         <p class="text-slate-400 mt-2">
             Estrattore statistiche basato su
-            <strong>Qwen 3.6 Vision AI (Groq)</strong>.
+            <strong>Qwen Vision AI (Groq)</strong>.
         </p>
 
     </div>
 
 
-    <!-- GROQ API KEY -->
+    <!-- =====================================================
+         GROQ API KEY
+    ====================================================== -->
+
     <div class="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
 
         <label
@@ -77,11 +88,13 @@
             <input
                 id="apiKeyInput"
                 type="password"
+                autocomplete="off"
                 placeholder="Incolla la tua Groq Key (es. gsk_...)"
                 class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none">
 
             <button
                 id="saveKeyBtn"
+                type="button"
                 class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl font-semibold text-sm transition">
                 Salva
             </button>
@@ -91,19 +104,22 @@
         <p
             id="keyStatus"
             class="text-xs text-slate-500 mt-2">
-            La chiave viene salvata localmente nel browser.
+            Inserisci la tua Groq API Key.
         </p>
 
     </div>
 
 
-    <!-- UPLOAD -->
+    <!-- =====================================================
+         UPLOAD
+    ====================================================== -->
+
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
 
         <label
             for="screenshot"
             class="block text-sm font-semibold mb-3">
-            Screenshot Box Score / Rec NBA 2K
+            Screenshot Box Score / GAME STATS NBA 2K
         </label>
 
         <input
@@ -117,7 +133,10 @@
                    hover:file:bg-blue-500 transition cursor-pointer">
 
 
-        <!-- IMAGE PREVIEW -->
+        <!-- =================================================
+             PREVIEW
+        ================================================== -->
+
         <div
             id="previewContainer"
             class="hidden mt-5">
@@ -134,21 +153,28 @@
         </div>
 
 
-        <!-- ANALYZE -->
+        <!-- =================================================
+             ANALYZE BUTTON
+        ================================================== -->
+
         <button
             id="analyzeButton"
+            type="button"
             class="mt-6 w-full bg-blue-600 hover:bg-blue-500
                    rounded-xl py-3 font-bold transition
                    flex items-center justify-center gap-2">
 
             <span id="btnText">
-                Analizza con Qwen 3.6 Vision AI
+                Analizza con Qwen Vision AI
             </span>
 
         </button>
 
 
-        <!-- MESSAGE -->
+        <!-- =================================================
+             MESSAGE
+        ================================================== -->
+
         <div
             id="message"
             class="hidden mt-5 rounded-xl px-4 py-3 text-sm">
@@ -157,7 +183,10 @@
     </div>
 
 
-    <!-- RESULTS -->
+    <!-- =====================================================
+         RESULTS
+    ====================================================== -->
+
     <div
         id="resultContainer"
         class="hidden mt-8">
@@ -181,6 +210,7 @@
 
                 <button
                     id="addPlayerBtn"
+                    type="button"
                     class="text-xs bg-slate-800 hover:bg-slate-700
                            text-blue-400 px-3 py-1.5 rounded-lg
                            border border-slate-700 font-semibold">
@@ -190,16 +220,15 @@
             </div>
 
 
-            <!-- PLAYERS -->
             <div
                 id="playersContainer"
                 class="space-y-4">
             </div>
 
 
-            <!-- SAVE -->
             <button
                 id="saveButton"
+                type="button"
                 class="mt-8 w-full bg-green-600 hover:bg-green-500
                        rounded-xl py-3 font-bold transition">
                 Salva partita su Supabase
@@ -216,27 +245,21 @@
 
 /* ============================================================
    CONFIGURAZIONE SUPABASE
-   ============================================================
-
-   SOSTITUISCI questi due valori con quelli del tuo progetto
-   Supabase.
-
-   Li trovi in:
-
-   Supabase
-   -> Project Settings
-   -> API
-
 ============================================================ */
 
-const SUPABASE_URL = "sb_publishable_T1f3SrRLaBADTMfFrh9PYQ_WbZcxmda";
-const SUPABASE_ANON_KEY = "sb_publishable_T1f3SrRLaBADTMfFrh9PYQ_WbZcxmda";
+const SUPABASE_URL =
+    "https://qytqvqruzsscxyatdcol.supabase.co";
 
 
-const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
+const SUPABASE_ANON_KEY =
+    "sb_publishable_T1f3SrRLaBADTMfFrh9PYQ_WbZcxmda";
+
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
 
 /* ============================================================
@@ -248,14 +271,10 @@ const GROQ_API_URL =
 
 
 /*
- * Modello multimodale attuale.
- *
- * qwen/qwen3.6-27b supporta:
- * - immagini
- * - testo
- * - JSON mode
+ * Modello multimodale Groq.
  */
-const GROQ_MODEL = "qwen/qwen3.6-27b";
+const GROQ_MODEL =
+    "qwen/qwen3.6-27b";
 
 
 /* ============================================================
@@ -306,23 +325,118 @@ const imagePreview =
 
 
 /* ============================================================
+   CONTROLLO CARICAMENTO
+============================================================ */
+
+console.log(
+    "========================================"
+);
+
+console.log(
+    "NBA 2K27 TRACKER - UPLOAD"
+);
+
+console.log(
+    "Pagina caricata correttamente."
+);
+
+console.log(
+    "Groq model:",
+    GROQ_MODEL
+);
+
+console.log(
+    "Supabase URL:",
+    SUPABASE_URL
+);
+
+console.log(
+    "========================================"
+);
+
+
+/* ============================================================
+   MESSAGGI
+============================================================ */
+
+function showMessage(
+    text,
+    type = "info"
+) {
+
+    message.className =
+        "mt-5 rounded-xl px-4 py-3 text-sm border";
+
+
+    if (type === "error") {
+
+        message.classList.add(
+            "bg-red-900/50",
+            "border-red-800",
+            "text-red-300"
+        );
+
+    }
+    else if (type === "success") {
+
+        message.classList.add(
+            "bg-green-900/50",
+            "border-green-800",
+            "text-green-300"
+        );
+
+    }
+    else {
+
+        message.classList.add(
+            "bg-blue-900/50",
+            "border-blue-800",
+            "text-blue-300"
+        );
+
+    }
+
+
+    message.textContent =
+        text;
+
+}
+
+
+function hideMessage() {
+
+    message.classList.add(
+        "hidden"
+    );
+
+}
+
+
+/* ============================================================
    API KEY
 ============================================================ */
 
 function getApiKey() {
 
-    return localStorage.getItem("groq_api_key") || "";
+    return (
+        localStorage.getItem(
+            "groq_api_key"
+        ) || ""
+    );
 
 }
 
 
 function updateKeyStatus() {
 
-    const key = getApiKey();
+    const key =
+        getApiKey();
+
 
     if (key) {
 
-        apiKeyInput.value = key;
+        apiKeyInput.value =
+            key;
 
         keyStatus.textContent =
             "✓ Groq API Key già salvata e pronta all'uso.";
@@ -335,202 +449,219 @@ function updateKeyStatus() {
 }
 
 
-saveKeyBtn.addEventListener("click", () => {
+saveKeyBtn.addEventListener(
+    "click",
+    function() {
 
-    const key =
-        apiKeyInput.value.trim();
-
-    if (!key) {
-
-        showMessage(
-            "Inserisci una Groq API Key.",
-            "error"
+        console.log(
+            "Salvataggio Groq API Key..."
         );
 
-        return;
-    }
+
+        const key =
+            apiKeyInput.value.trim();
 
 
-    if (!key.startsWith("gsk_")) {
+        if (!key) {
 
-        showMessage(
-            "La chiave Groq dovrebbe iniziare con gsk_.",
-            "error"
+            showMessage(
+                "Inserisci una Groq API Key.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!key.startsWith("gsk_")) {
+
+            showMessage(
+                "La Groq API Key dovrebbe iniziare con gsk_.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        localStorage.setItem(
+            "groq_api_key",
+            key
         );
 
-        return;
+
+        keyStatus.textContent =
+            "✓ Groq API Key salvata localmente.";
+
+        keyStatus.className =
+            "text-xs text-green-400 mt-2";
+
+
+        showMessage(
+            "Groq API Key salvata.",
+            "success"
+        );
+
     }
-
-
-    localStorage.setItem(
-        "groq_api_key",
-        key
-    );
-
-
-    keyStatus.textContent =
-        "✓ Groq API Key salvata localmente.";
-
-    keyStatus.className =
-        "text-xs text-green-400 mt-2";
-
-
-    showMessage(
-        "Groq API Key salvata.",
-        "success"
-    );
-
-});
+);
 
 
 updateKeyStatus();
 
 
 /* ============================================================
-   MESSAGGI
+   PREVIEW
 ============================================================ */
 
-function showMessage(text, type = "info") {
+screenshotInput.addEventListener(
+    "change",
+    function() {
 
-    message.classList.remove(
-        "hidden",
-        "bg-red-900/50",
-        "border-red-800",
-        "text-red-300",
-        "bg-green-900/50",
-        "border-green-800",
-        "text-green-300",
-        "bg-blue-900/50",
-        "border-blue-800",
-        "text-blue-300"
-    );
-
-
-    message.classList.add(
-        "border"
-    );
-
-
-    if (type === "error") {
-
-        message.classList.add(
-            "bg-red-900/50",
-            "border-red-800",
-            "text-red-300"
+        console.log(
+            "Cambio file rilevato."
         );
 
-    } else if (type === "success") {
 
-        message.classList.add(
-            "bg-green-900/50",
-            "border-green-800",
-            "text-green-300"
+        const file =
+            screenshotInput.files[0];
+
+
+        if (!file) {
+
+            previewContainer.classList.add(
+                "hidden"
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "File:",
+            file.name
         );
 
-    } else {
-
-        message.classList.add(
-            "bg-blue-900/50",
-            "border-blue-800",
-            "text-blue-300"
+        console.log(
+            "Tipo:",
+            file.type
         );
 
-    }
-
-
-    message.textContent = text;
-
-}
-
-
-function hideMessage() {
-
-    message.classList.add("hidden");
-
-}
-
-
-/* ============================================================
-   IMAGE PREVIEW
-============================================================ */
-
-screenshotInput.addEventListener("change", () => {
-
-    const file =
-        screenshotInput.files[0];
-
-    if (!file) {
-
-        previewContainer.classList.add("hidden");
-
-        return;
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload = function(event) {
-
-        imagePreview.src =
-            event.target.result;
-
-        previewContainer.classList.remove(
-            "hidden"
+        console.log(
+            "Dimensione:",
+            file.size
         );
 
-    };
-
-
-    reader.readAsDataURL(file);
-
-});
-
-
-/* ============================================================
-   CONVERSIONE IMMAGINE -> BASE64
-============================================================ */
-
-function fileToBase64(file) {
-
-    return new Promise((resolve, reject) => {
 
         const reader =
             new FileReader();
 
 
-        reader.onload = () => {
+        reader.onload =
+            function(event) {
 
-            const result =
-                reader.result;
+                imagePreview.src =
+                    event.target.result;
 
-            /*
-             * Restituisce solamente il Base64,
-             * senza "data:image/...;base64,"
-             */
+                previewContainer.classList.remove(
+                    "hidden"
+                );
 
-            const base64 =
-                result.split(",")[1];
-
-            resolve(base64);
-
-        };
+            };
 
 
         reader.onerror =
-            reject;
+            function() {
+
+                showMessage(
+                    "Errore nella lettura dell'immagine.",
+                    "error"
+                );
+
+            };
 
 
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(
+            file
+        );
 
-    });
+    }
+);
+
+
+/* ============================================================
+   FILE -> BASE64
+============================================================ */
+
+function fileToBase64(file) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function() {
+
+                    const result =
+                        reader.result;
+
+
+                    if (
+                        typeof result !== "string" ||
+                        !result.includes(",")
+                    ) {
+
+                        reject(
+                            new Error(
+                                "Impossibile convertire l'immagine."
+                            )
+                        );
+
+                        return;
+
+                    }
+
+
+                    const base64 =
+                        result.split(",")[1];
+
+
+                    resolve(
+                        base64
+                    );
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "Errore durante la lettura del file."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
 
 }
 
 
 /* ============================================================
-   PROMPT AI
+   PROMPT
 ============================================================ */
 
 function createPrompt() {
@@ -538,10 +669,10 @@ function createPrompt() {
     return `
 Sei un sistema OCR specializzato nelle statistiche di NBA 2K.
 
-Analizza attentamente lo screenshot della partita.
+Analizza attentamente lo screenshot GAME STATS / BOX SCORE.
 
 Devi identificare TUTTI i giocatori visibili nella schermata
-e leggere le statistiche presenti.
+e leggere le statistiche.
 
 Restituisci ESCLUSIVAMENTE JSON valido.
 
@@ -576,12 +707,17 @@ REGOLE IMPORTANTI:
 2. Se una statistica non è leggibile usa 0.
 3. Mantieni esattamente il nome del giocatore visibile.
 4. Non aggiungere testo fuori dal JSON.
-5. Non usare markdown.
+5. Non usare Markdown.
 6. Non creare giocatori che non sono presenti nello screenshot.
-7. Leggi attentamente le colonne.
+7. Leggi attentamente tutte le colonne.
 8. Se lo screenshot contiene più giocatori, restituiscili tutti.
 9. I valori numerici devono essere numeri e non stringhe.
 10. minutes può essere espresso come numero decimale.
+11. Non confondere FG con FGA.
+12. Non confondere 3P con 3PA.
+13. Non confondere FT con FTA.
+14. Se una riga è parzialmente leggibile, estrai solamente i valori chiaramente leggibili.
+15. Restituisci sempre un oggetto JSON con la proprietà "players".
 
 Analizza lo screenshot ora.
 `;
@@ -593,7 +729,14 @@ Analizza lo screenshot ora.
    CHIAMATA GROQ
 ============================================================ */
 
-async function analyzeScreenshot(file) {
+async function analyzeScreenshot(
+    file
+) {
+
+    console.log(
+        "Avvio analisi screenshot..."
+    );
+
 
     const apiKey =
         getApiKey();
@@ -608,8 +751,29 @@ async function analyzeScreenshot(file) {
     }
 
 
+    if (!file) {
+
+        throw new Error(
+            "Nessuna immagine selezionata."
+        );
+
+    }
+
+
+    console.log(
+        "Conversione immagine in Base64..."
+    );
+
+
     const base64 =
-        await fileToBase64(file);
+        await fileToBase64(
+            file
+        );
+
+
+    console.log(
+        "Immagine convertita."
+    );
 
 
     const mimeType =
@@ -618,41 +782,51 @@ async function analyzeScreenshot(file) {
 
     const requestBody = {
 
-        model: GROQ_MODEL,
+        model:
+            GROQ_MODEL,
 
-        temperature: 0,
+        temperature:
+            0,
 
-        max_tokens: 4096,
+        max_completion_tokens:
+            4096,
 
         response_format: {
-            type: "json_object"
+            type:
+                "json_object"
         },
 
         messages: [
 
             {
-                role: "system",
+                role:
+                    "system",
 
                 content:
-                    "Sei un OCR esperto di schermate statistiche NBA 2K. Devi restituire esclusivamente JSON valido."
+                    "Sei un OCR professionale per schermate statistiche NBA 2K. Restituisci esclusivamente JSON valido."
             },
 
             {
 
-                role: "user",
+                role:
+                    "user",
 
                 content: [
 
                     {
-                        type: "text",
+
+                        type:
+                            "text",
 
                         text:
                             createPrompt()
+
                     },
 
                     {
 
-                        type: "image_url",
+                        type:
+                            "image_url",
 
                         image_url: {
 
@@ -672,35 +846,106 @@ async function analyzeScreenshot(file) {
     };
 
 
-    const response =
-        await fetch(
-            GROQ_API_URL,
-            {
+    console.log(
+        "Invio richiesta a Groq..."
+    );
 
-                method: "POST",
+    console.log(
+        "Modello:",
+        GROQ_MODEL
+    );
 
-                headers: {
 
-                    "Content-Type":
-                        "application/json",
+    let response;
 
-                    "Authorization":
-                        `Bearer ${apiKey}`
 
-                },
+    try {
 
-                body:
-                    JSON.stringify(requestBody)
+        response =
+            await fetch(
+                GROQ_API_URL,
+                {
 
-            }
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${apiKey}`
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            requestBody
+                        )
+
+                }
+            );
+
+    }
+    catch (networkError) {
+
+        console.error(
+            "Errore di rete Groq:",
+            networkError
         );
 
 
-    const data =
-        await response.json();
+        throw new Error(
+            "Impossibile raggiungere Groq. Controlla connessione, API Key e console del browser."
+        );
+
+    }
+
+
+    console.log(
+        "Risposta Groq HTTP:",
+        response.status
+    );
+
+
+    const rawText =
+        await response.text();
+
+
+    console.log(
+        "Risposta raw Groq:",
+        rawText
+    );
+
+
+    let data;
+
+
+    try {
+
+        data =
+            JSON.parse(
+                rawText
+            );
+
+    }
+    catch {
+
+        throw new Error(
+            `Groq ha restituito una risposta non valida (HTTP ${response.status}).`
+        );
+
+    }
 
 
     if (!response.ok) {
+
+        console.error(
+            "Errore API Groq:",
+            data
+        );
+
 
         throw new Error(
             data?.error?.message ||
@@ -723,7 +968,14 @@ async function analyzeScreenshot(file) {
     }
 
 
+    console.log(
+        "Contenuto AI:",
+        content
+    );
+
+
     let parsed;
+
 
     try {
 
@@ -732,12 +984,14 @@ async function analyzeScreenshot(file) {
                 ? JSON.parse(content)
                 : content;
 
-    } catch (error) {
+    }
+    catch (jsonError) {
 
         console.error(
-            "Risposta AI non valida:",
+            "JSON AI non valido:",
             content
         );
+
 
         throw new Error(
             "L'AI ha restituito un JSON non valido."
@@ -746,11 +1000,15 @@ async function analyzeScreenshot(file) {
     }
 
 
-    if (!parsed.players ||
-        !Array.isArray(parsed.players)) {
+    if (
+        !parsed.players ||
+        !Array.isArray(
+            parsed.players
+        )
+    ) {
 
         throw new Error(
-            "Il JSON restituito non contiene l'array players."
+            'Il JSON restituito non contiene l\'array "players".'
         );
 
     }
@@ -762,12 +1020,25 @@ async function analyzeScreenshot(file) {
 
 
 /* ============================================================
-   ANALIZZA SCREENSHOT
+   ANALIZZA
 ============================================================ */
 
 analyzeButton.addEventListener(
     "click",
-    async () => {
+    async function() {
+
+        console.log(
+            "========================================"
+        );
+
+        console.log(
+            "PULSANTE ANALIZZA PREMUTO"
+        );
+
+        console.log(
+            "========================================"
+        );
+
 
         hideMessage();
 
@@ -784,26 +1055,40 @@ analyzeButton.addEventListener(
             );
 
             return;
+
         }
 
 
-        if (![
+        const allowedTypes = [
+
             "image/png",
+
             "image/jpeg",
+
             "image/webp"
-        ].includes(file.type)) {
+
+        ];
+
+
+        if (
+            !allowedTypes.includes(
+                file.type
+            )
+        ) {
 
             showMessage(
-                "Formato immagine non supportato.",
+                "Formato immagine non supportato. Usa PNG, JPG o WEBP.",
                 "error"
             );
 
             return;
+
         }
 
 
         analyzeButton.disabled =
             true;
+
 
         analyzeButton.classList.add(
             "opacity-60",
@@ -815,13 +1100,30 @@ analyzeButton.addEventListener(
             "Analisi AI in corso...";
 
 
+        showMessage(
+            "Sto analizzando lo screenshot con Groq...",
+            "info"
+        );
+
+
         try {
 
             const players =
-                await analyzeScreenshot(file);
+                await analyzeScreenshot(
+                    file
+                );
 
 
-            if (!players.length) {
+            console.log(
+                "Giocatori estratti:",
+                players
+            );
+
+
+            if (
+                !players ||
+                players.length === 0
+            ) {
 
                 throw new Error(
                     "Nessun giocatore rilevato nello screenshot."
@@ -830,7 +1132,9 @@ analyzeButton.addEventListener(
             }
 
 
-            renderPlayers(players);
+            renderPlayers(
+                players
+            );
 
 
             resultContainer.classList.remove(
@@ -845,12 +1149,28 @@ analyzeButton.addEventListener(
 
 
             resultContainer.scrollIntoView({
-                behavior: "smooth"
+                behavior:
+                    "smooth"
             });
 
-        } catch (error) {
+        }
+        catch (error) {
 
-            console.error(error);
+            console.error(
+                "========================================"
+            );
+
+            console.error(
+                "ERRORE ANALISI"
+            );
+
+            console.error(
+                error
+            );
+
+            console.error(
+                "========================================"
+            );
 
 
             showMessage(
@@ -859,18 +1179,21 @@ analyzeButton.addEventListener(
                 "error"
             );
 
-        } finally {
+        }
+        finally {
 
             analyzeButton.disabled =
                 false;
+
 
             analyzeButton.classList.remove(
                 "opacity-60",
                 "cursor-not-allowed"
             );
 
+
             btnText.textContent =
-                "Analizza con Qwen 3.6 Vision AI";
+                "Analizza con Qwen Vision AI";
 
         }
 
@@ -879,16 +1202,22 @@ analyzeButton.addEventListener(
 
 
 /* ============================================================
-   RENDER PLAYERS
+   RENDER GIOCATORI
 ============================================================ */
 
-function renderPlayers(players) {
+function renderPlayers(
+    players
+) {
 
-    playersContainer.innerHTML = "";
+    playersContainer.innerHTML =
+        "";
 
 
     players.forEach(
-        (player, index) => {
+        function(
+            player,
+            index
+        ) {
 
             addPlayerCard(
                 player,
@@ -911,7 +1240,9 @@ function addPlayerCard(
 ) {
 
     const card =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     card.className =
@@ -941,11 +1272,23 @@ function addPlayerCard(
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            ${createInput("name", "Nome", player.name)}
+            ${createInput(
+                "name",
+                "Nome",
+                player.name
+            )}
 
-            ${createInput("team", "Squadra", player.team)}
+            ${createInput(
+                "team",
+                "Squadra",
+                player.team
+            )}
 
-            ${createInput("position", "Posizione", player.position)}
+            ${createInput(
+                "position",
+                "Posizione",
+                player.position
+            )}
 
         </div>
 
@@ -956,48 +1299,108 @@ function addPlayerCard(
                 Statistiche
             </h4>
 
+
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
 
-                ${createNumberInput("points", "PTS", player.points)}
+                ${createNumberInput(
+                    "points",
+                    "PTS",
+                    player.points
+                )}
 
-                ${createNumberInput("rebounds", "REB", player.rebounds)}
+                ${createNumberInput(
+                    "rebounds",
+                    "REB",
+                    player.rebounds
+                )}
 
-                ${createNumberInput("assists", "AST", player.assists)}
+                ${createNumberInput(
+                    "assists",
+                    "AST",
+                    player.assists
+                )}
 
-                ${createNumberInput("steals", "STL", player.steals)}
+                ${createNumberInput(
+                    "steals",
+                    "STL",
+                    player.steals
+                )}
 
-                ${createNumberInput("blocks", "BLK", player.blocks)}
+                ${createNumberInput(
+                    "blocks",
+                    "BLK",
+                    player.blocks
+                )}
 
-                ${createNumberInput("turnovers", "TO", player.turnovers)}
+                ${createNumberInput(
+                    "turnovers",
+                    "TO",
+                    player.turnovers
+                )}
 
-                ${createNumberInput("fg_made", "FG", player.fg_made)}
+                ${createNumberInput(
+                    "fg_made",
+                    "FG",
+                    player.fg_made
+                )}
 
-                ${createNumberInput("fg_attempted", "FGA", player.fg_attempted)}
+                ${createNumberInput(
+                    "fg_attempted",
+                    "FGA",
+                    player.fg_attempted
+                )}
 
-                ${createNumberInput("three_made", "3P", player.three_made)}
+                ${createNumberInput(
+                    "three_made",
+                    "3P",
+                    player.three_made
+                )}
 
-                ${createNumberInput("three_attempted", "3PA", player.three_attempted)}
+                ${createNumberInput(
+                    "three_attempted",
+                    "3PA",
+                    player.three_attempted
+                )}
 
-                ${createNumberInput("ft_made", "FT", player.ft_made)}
+                ${createNumberInput(
+                    "ft_made",
+                    "FT",
+                    player.ft_made
+                )}
 
-                ${createNumberInput("ft_attempted", "FTA", player.ft_attempted)}
+                ${createNumberInput(
+                    "ft_attempted",
+                    "FTA",
+                    player.ft_attempted
+                )}
 
-                ${createNumberInput("minutes", "MIN", player.minutes)}
+                ${createNumberInput(
+                    "minutes",
+                    "MIN",
+                    player.minutes
+                )}
 
             </div>
 
         </div>
+
     `;
 
 
-    playersContainer.appendChild(card);
+    playersContainer.appendChild(
+        card
+    );
 
 
-    card.querySelector(
-        ".remove-player"
-    ).addEventListener(
+    const removeButton =
+        card.querySelector(
+            ".remove-player"
+        );
+
+
+    removeButton.addEventListener(
         "click",
-        () => {
+        function() {
 
             card.remove();
 
@@ -1008,7 +1411,7 @@ function addPlayerCard(
 
 
 /* ============================================================
-   INPUT HELPERS
+   INPUT TEXT
 ============================================================ */
 
 function createInput(
@@ -1021,14 +1424,17 @@ function createInput(
 
         <div>
 
-            <label class="block text-xs text-slate-400 mb-1">
+            <label
+                class="block text-xs text-slate-400 mb-1">
                 ${label}
             </label>
 
             <input
                 type="text"
                 data-field="${name}"
-                value="${escapeHtml(value ?? "")}"
+                value="${escapeHtml(
+                    value ?? ""
+                )}"
                 class="w-full bg-slate-900 border border-slate-700
                        rounded-lg px-3 py-2 text-sm text-white
                        focus:border-blue-500 outline-none">
@@ -1040,6 +1446,10 @@ function createInput(
 }
 
 
+/* ============================================================
+   INPUT NUMERICO
+============================================================ */
+
 function createNumberInput(
     name,
     label,
@@ -1050,7 +1460,8 @@ function createNumberInput(
 
         <div>
 
-            <label class="block text-xs text-slate-400 mb-1">
+            <label
+                class="block text-xs text-slate-400 mb-1">
                 ${label}
             </label>
 
@@ -1071,14 +1482,40 @@ function createNumberInput(
 }
 
 
-function escapeHtml(value) {
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHtml(
+    value
+) {
 
     return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
 
@@ -1089,35 +1526,50 @@ function escapeHtml(value) {
 
 addPlayerBtn.addEventListener(
     "click",
-    () => {
+    function() {
 
-        addPlayerCard(
-            {
-                name: "",
-                team: "",
-                position: "",
-                points: 0,
-                rebounds: 0,
-                assists: 0,
-                steals: 0,
-                blocks: 0,
-                turnovers: 0,
-                fg_made: 0,
-                fg_attempted: 0,
-                three_made: 0,
-                three_attempted: 0,
-                ft_made: 0,
-                ft_attempted: 0,
-                minutes: 0
-            }
-        );
+        addPlayerCard({
+
+            name: "",
+
+            team: "",
+
+            position: "",
+
+            points: 0,
+
+            rebounds: 0,
+
+            assists: 0,
+
+            steals: 0,
+
+            blocks: 0,
+
+            turnovers: 0,
+
+            fg_made: 0,
+
+            fg_attempted: 0,
+
+            three_made: 0,
+
+            three_attempted: 0,
+
+            ft_made: 0,
+
+            ft_attempted: 0,
+
+            minutes: 0
+
+        });
 
     }
 );
 
 
 /* ============================================================
-   LEGGI GIOCATORI DAL FORM
+   LEGGI GIOCATORI
 ============================================================ */
 
 function getPlayersFromForm() {
@@ -1131,91 +1583,99 @@ function getPlayersFromForm() {
     const players = [];
 
 
-    cards.forEach(card => {
+    cards.forEach(
+        function(card) {
 
-        const getValue =
-            field => {
+            function getValue(
+                field
+            ) {
 
                 const input =
                     card.querySelector(
                         `[data-field="${field}"]`
                     );
 
+
                 return input
                     ? input.value
                     : "";
 
-            };
+            }
 
 
-        const getNumber =
-            field => {
+            function getNumber(
+                field
+            ) {
 
                 const value =
                     parseFloat(
                         getValue(field)
                     );
 
-                return Number.isFinite(value)
+
+                return Number.isFinite(
+                    value
+                )
                     ? value
                     : 0;
 
-            };
+            }
 
 
-        players.push({
+            players.push({
 
-            name:
-                getValue("name"),
+                name:
+                    getValue("name"),
 
-            team:
-                getValue("team"),
+                team:
+                    getValue("team"),
 
-            position:
-                getValue("position"),
+                position:
+                    getValue("position"),
 
-            points:
-                getNumber("points"),
+                points:
+                    getNumber("points"),
 
-            rebounds:
-                getNumber("rebounds"),
+                rebounds:
+                    getNumber("rebounds"),
 
-            assists:
-                getNumber("assists"),
+                assists:
+                    getNumber("assists"),
 
-            steals:
-                getNumber("steals"),
+                steals:
+                    getNumber("steals"),
 
-            blocks:
-                getNumber("blocks"),
+                blocks:
+                    getNumber("blocks"),
 
-            turnovers:
-                getNumber("turnovers"),
+                turnovers:
+                    getNumber("turnovers"),
 
-            fg_made:
-                getNumber("fg_made"),
+                fg_made:
+                    getNumber("fg_made"),
 
-            fg_attempted:
-                getNumber("fg_attempted"),
+                fg_attempted:
+                    getNumber("fg_attempted"),
 
-            three_made:
-                getNumber("three_made"),
+                three_made:
+                    getNumber("three_made"),
 
-            three_attempted:
-                getNumber("three_attempted"),
+                three_attempted:
+                    getNumber("three_attempted"),
 
-            ft_made:
-                getNumber("ft_made"),
+                ft_made:
+                    getNumber("ft_made"),
 
-            ft_attempted:
-                getNumber("ft_attempted"),
+                ft_attempted:
+                    getNumber("ft_attempted"),
 
-            minutes:
-                getNumber("minutes")
+                minutes:
+                    getNumber("minutes")
 
-        });
+            });
 
-    });
+        }
+    );
 
 
     return players;
@@ -1224,12 +1684,17 @@ function getPlayersFromForm() {
 
 
 /* ============================================================
-   SALVATAGGIO SUPABASE
+   SALVA SU SUPABASE
 ============================================================ */
 
 saveButton.addEventListener(
     "click",
-    async () => {
+    async function() {
+
+        console.log(
+            "Salvataggio partita..."
+        );
+
 
         const players =
             getPlayersFromForm();
@@ -1243,13 +1708,17 @@ saveButton.addEventListener(
             );
 
             return;
+
         }
 
 
         const invalidPlayer =
             players.find(
-                player =>
-                    !player.name.trim()
+                function(player) {
+
+                    return !player.name.trim();
+
+                }
             );
 
 
@@ -1261,16 +1730,19 @@ saveButton.addEventListener(
             );
 
             return;
+
         }
 
 
         saveButton.disabled =
             true;
 
+
         saveButton.classList.add(
             "opacity-60",
             "cursor-not-allowed"
         );
+
 
         saveButton.textContent =
             "Salvataggio...";
@@ -1279,13 +1751,11 @@ saveButton.addEventListener(
         try {
 
             /*
-             * Prima verifichiamo l'utente autenticato.
+             * Controlliamo l'utente autenticato.
              */
 
             const {
-                data: {
-                    user
-                },
+                data,
                 error: authError
             } =
                 await supabaseClient.auth.getUser();
@@ -1298,25 +1768,27 @@ saveButton.addEventListener(
             }
 
 
+            const user =
+                data?.user;
+
+
             if (!user) {
 
                 throw new Error(
-                    "Utente non autenticato."
+                    "Utente non autenticato. Effettua nuovamente il login."
                 );
 
             }
 
 
+            console.log(
+                "Utente autenticato:",
+                user.id
+            );
+
+
             /*
-             * Inserimento partita.
-             *
-             * ATTENZIONE:
-             * questa parte presuppone una tabella "matches"
-             * con almeno:
-             *
-             * id
-             * user_id
-             *
+             * Creiamo la partita.
              */
 
             const {
@@ -1342,69 +1814,79 @@ saveButton.addEventListener(
             }
 
 
+            console.log(
+                "Partita creata:",
+                match
+            );
+
+
             /*
-             * Inserimento giocatori.
+             * Creiamo le righe giocatori.
              */
 
             const rows =
                 players.map(
-                    player => ({
+                    function(player) {
 
-                        match_id:
-                            match.id,
+                        return {
 
-                        user_id:
-                            user.id,
+                            match_id:
+                                match.id,
 
-                        name:
-                            player.name,
+                            user_id:
+                                user.id,
 
-                        team:
-                            player.team,
+                            name:
+                                player.name,
 
-                        position:
-                            player.position,
+                            team:
+                                player.team,
 
-                        points:
-                            player.points,
+                            position:
+                                player.position,
 
-                        rebounds:
-                            player.rebounds,
+                            points:
+                                player.points,
 
-                        assists:
-                            player.assists,
+                            rebounds:
+                                player.rebounds,
 
-                        steals:
-                            player.steals,
+                            assists:
+                                player.assists,
 
-                        blocks:
-                            player.blocks,
+                            steals:
+                                player.steals,
 
-                        turnovers:
-                            player.turnovers,
+                            blocks:
+                                player.blocks,
 
-                        fg_made:
-                            player.fg_made,
+                            turnovers:
+                                player.turnovers,
 
-                        fg_attempted:
-                            player.fg_attempted,
+                            fg_made:
+                                player.fg_made,
 
-                        three_made:
-                            player.three_made,
+                            fg_attempted:
+                                player.fg_attempted,
 
-                        three_attempted:
-                            player.three_attempted,
+                            three_made:
+                                player.three_made,
 
-                        ft_made:
-                            player.ft_made,
+                            three_attempted:
+                                player.three_attempted,
 
-                        ft_attempted:
-                            player.ft_attempted,
+                            ft_made:
+                                player.ft_made,
 
-                        minutes:
-                            player.minutes
+                            ft_attempted:
+                                player.ft_attempted,
 
-                    })
+                            minutes:
+                                player.minutes
+
+                        };
+
+                    }
                 );
 
 
@@ -1413,14 +1895,32 @@ saveButton.addEventListener(
             } =
                 await supabaseClient
                     .from("players")
-                    .insert(rows);
+                    .insert(
+                        rows
+                    );
 
 
             if (playersError) {
 
+                /*
+                 * Se l'inserimento giocatori fallisce,
+                 * segnaliamo chiaramente l'errore.
+                 */
+
+                console.error(
+                    "Errore inserimento players:",
+                    playersError
+                );
+
+
                 throw playersError;
 
             }
+
+
+            console.log(
+                "Giocatori salvati correttamente."
+            );
 
 
             showMessage(
@@ -1438,12 +1938,13 @@ saveButton.addEventListener(
                 "hover:bg-green-500"
             );
 
+
             saveButton.classList.add(
                 "bg-green-700"
             );
 
-
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "Errore Supabase:",
@@ -1453,7 +1954,10 @@ saveButton.addEventListener(
 
             showMessage(
                 "Errore nel salvataggio: " +
-                error.message,
+                (
+                    error?.message ||
+                    "Errore sconosciuto."
+                ),
                 "error"
             );
 
@@ -1461,10 +1965,12 @@ saveButton.addEventListener(
             saveButton.disabled =
                 false;
 
+
             saveButton.classList.remove(
                 "opacity-60",
                 "cursor-not-allowed"
             );
+
 
             saveButton.textContent =
                 "Salva partita su Supabase";
@@ -1481,13 +1987,19 @@ saveButton.addEventListener(
 
 logoutButton.addEventListener(
     "click",
-    async () => {
+    async function() {
+
+        console.log(
+            "Logout..."
+        );
+
 
         try {
 
             await supabaseClient.auth.signOut();
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 "Logout error:",
@@ -1501,6 +2013,15 @@ logoutButton.addEventListener(
             "login.html";
 
     }
+);
+
+
+/* ============================================================
+   FINE
+============================================================ */
+
+console.log(
+    "NBA 2K27 Tracker Upload inizializzato correttamente."
 );
 
 </script>
