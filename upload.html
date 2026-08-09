@@ -33,7 +33,7 @@
             Carica partita
         </h1>
         <p class="text-slate-400 mt-2">
-            Carica lo screenshot GAME STATS della tua partita NBA 2K.
+            Carica lo screenshot GAME STATS / Rec della tua partita NBA 2K.
         </p>
     </div>
 
@@ -56,7 +56,7 @@
             id="analyzeButton"
             class="mt-6 w-full bg-blue-600 hover:bg-blue-500
                    rounded-xl py-3 font-bold transition flex items-center justify-center gap-2">
-            <span id="btnText">Analizza screenshot con Unlimited-OCR (AI)</span>
+            <span id="btnText">Analizza screenshot con AI Vision</span>
         </button>
 
         <div id="message" class="hidden mt-5 rounded-xl px-4 py-3 text-sm"></div>
@@ -88,7 +88,6 @@
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
 const screenshotInput = document.getElementById("screenshot");
 const analyzeButton = document.getElementById("analyzeButton");
@@ -123,7 +122,7 @@ async function checkUser() {
     return user;
 }
 
-// PARSER TESTO PER NBA 2K (Riconosce nomi, PTS, REB, AST, STL, BLK, GRADE)
+// PARSER TESTO PER NBA 2K
 function parse2KBoxScore(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     const players = [];
@@ -131,15 +130,14 @@ function parse2KBoxScore(text) {
     const gradeRegex = /\b(A\+|A|A-|B\+|B|B-|C\+|C|C-|D\+|D|F)\b/i;
 
     lines.forEach(line => {
-        // Cerca sequenze di numeri nella riga (PTS, REB, AST, STL, BLK, ecc.)
+        // Cerca cifre numeriche nella riga (PTS, REB, AST, STL, BLK)
         const numbers = line.match(/\b\d+\b/g);
-        
-        // Se ci sono almeno 3 numeri, è probabilmente una riga di statistiche di un giocatore
-        if (numbers && numbers.length >= 3) {
+
+        if (numbers && numbers.length >= 2) {
             const gradeMatch = line.match(gradeRegex);
             const grade = gradeMatch ? gradeMatch[0].toUpperCase() : "-";
 
-            // Pulisce la riga per estrarre il nickname del giocatore
+            // Pulisce la riga mantenendo il nickname
             let name = line
                 .replace(gradeRegex, '')
                 .replace(/\b\d+\b/g, '')
@@ -153,8 +151,8 @@ function parse2KBoxScore(text) {
             players.push({
                 name: name,
                 pts: parseInt(numbers[0]) || 0,
-                reb: parseInt(numbers[1]) || 0,
-                ast: parseInt(numbers[2]) || 0,
+                reb: numbers[1] ? parseInt(numbers[1]) : 0,
+                ast: numbers[2] ? parseInt(numbers[2]) : 0,
                 stl: numbers[3] ? parseInt(numbers[3]) : 0,
                 blk: numbers[4] ? parseInt(numbers[4]) : 0,
                 grade: grade
@@ -165,7 +163,7 @@ function parse2KBoxScore(text) {
     return players;
 }
 
-// ANALISI OCR TRAMITE HUGGING FACE (baidu/Unlimited-OCR)
+// ANALISI OCR TRAMITE API REST OCR.SPACE (ENGINE 2)
 analyzeButton.addEventListener("click", async () => {
     const file = screenshotInput.files[0];
     if (!file) {
@@ -174,50 +172,60 @@ analyzeButton.addEventListener("click", async () => {
     }
 
     analyzeButton.disabled = true;
-    btnText.textContent = "Analisi in corso con Unlimited-OCR AI...";
+    btnText.textContent = "Analisi dello screenshot in corso...";
     message.classList.add("hidden");
 
     try {
-        // Connessione diretta allo Space Hugging Face baidu/Unlimited-OCR
-        const client = await Client.connect("baidu/Unlimited-OCR");
-        
-        // Invia l'immagine all'endpoint dello space
-        const result = await client.predict("/predict", {
-            image_file: file,
-            task_prompt: "document parsing."
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("apikey", "helloworld"); // API Key pubblica di test
+        formData.append("language", "eng");
+        formData.append("isTable", "true");
+        formData.append("OCREngine", "2"); // Engine 2: Ottimizzato per numeri e interfacce grafiche
+
+        const response = await fetch("https://api.ocr.space/parse/image", {
+            method: "POST",
+            body: formData
         });
 
-        console.log("Risposta Hugging Face:", result);
-
-        // Estrazione del testo restituito
-        rawOcrText = Array.isArray(result.data) ? result.data.join("\n") : String(result.data || "");
-        
-        if (!rawOcrText) {
-            throw new Error("Nessun testo estratto dall'immagine.");
+        if (!response.ok) {
+            throw new Error("Errore durante la comunicazione con l'API OCR.");
         }
 
+        const data = await response.json();
+
+        if (data.IsErroredOnProcessing) {
+            throw new Error(data.ErrorMessage ? data.ErrorMessage[0] : "Errore elaborazione immagine.");
+        }
+
+        rawOcrText = data.ParsedResults && data.ParsedResults[0] ? data.ParsedResults[0].ParsedText : "";
+
+        if (!rawOcrText) {
+            throw new Error("Nessun testo rilevato nella foto.");
+        }
+
+        console.log("Testo OCR estratto:", rawOcrText);
+
         const players = parse2KBoxScore(rawOcrText);
-        
+
         if (players.length === 0) {
-            // Se il parsing non riconosce righe esatte, mostra comunque una riga per la modifica manuale
-            players.push({ name: "Player 1", pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, grade: "A" });
+            // Se la foto era buia/sfuocata, crea una scheda per l'inserimento
+            players.push({ name: "Giocatore 1", pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, grade: "-" });
         }
 
         displayPlayers(players);
-        showMessage("Screenshot analizzato con successo con Unlimited-OCR!", "success");
+        showMessage("Analisi completata! Modifica o conferma le statistiche.", "success");
 
     } catch (error) {
-        console.error("Errore HF OCR:", error);
-        
-        // Fallback locale in caso di timeout/offline dello Space
-        showMessage("Impossibile contattare Unlimited-OCR. Controlla la connessione o riprova.", "error");
+        console.error("Errore OCR:", error);
+        showMessage("Errore durante l'analisi: " + error.message, "error");
     }
 
     analyzeButton.disabled = false;
-    btnText.textContent = "Analizza screenshot con Unlimited-OCR (AI)";
+    btnText.textContent = "Analizza screenshot con AI Vision";
 });
 
-// RENDERING SCHEDE GIOCATORI MODIFICABILI
+// RENDERING SCHEDE GIOCATORI
 function displayPlayers(players) {
     playersContainer.innerHTML = "";
     players.forEach(p => addPlayerCard(p));
@@ -294,7 +302,7 @@ saveButton.addEventListener("click", async () => {
             .from("nba_matches")
             .insert({
                 user_id: user.id,
-                ocr_raw_text: rawOcrText || "Analisi Unlimited-OCR"
+                ocr_raw_text: rawOcrText || "Analisi OCR API"
             })
             .select()
             .single();
