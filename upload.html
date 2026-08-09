@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Upload partita | NBA 2K27 Tracker</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-white">
+
+<header class="border-b border-slate-800">
+
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        <a href="index.html"
+           class="text-xl font-black">
+
+            NBA<span class="text-blue-500">2K</span>
+
+        </a>
+
+        <button
+            id="logoutButton"
+            class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-semibold">
+
+            Logout
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="max-w-4xl mx-auto px-6 py-12">
+
+    <div class="mb-8">
+
+        <h1 class="text-3xl font-black">
+            Carica partita
+        </h1>
+
+        <p class="text-slate-400 mt-2">
+            Carica lo screenshot GAME STATS della tua partita.
+        </p>
+
+    </div>
+
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+
+        <label
+            for="screenshot"
+            class="block text-sm font-semibold mb-3">
+
+            Screenshot
+
+        </label>
+
+
+        <input
+            id="screenshot"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="block w-full text-sm text-slate-300
+                   file:mr-4 file:py-2 file:px-4
+                   file:rounded-lg file:border-0
+                   file:bg-blue-600 file:text-white
+                   hover:file:bg-blue-500">
+
+
+        <button
+            id="analyzeButton"
+            class="mt-6 w-full bg-blue-600 hover:bg-blue-500
+                   rounded-xl py-3 font-bold transition">
+
+            Analizza screenshot
+
+        </button>
+
+
+        <div
+            id="message"
+            class="hidden mt-5 rounded-xl px-4 py-3 text-sm">
+        </div>
+
+    </div>
+
+
+    <!-- RISULTATO OCR -->
+
+    <div
+        id="resultContainer"
+        class="hidden mt-8">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+
+            <h2 class="text-xl font-bold mb-5">
+                Risultato OCR
+            </h2>
+
+
+            <div
+                id="playersContainer"
+                class="space-y-3">
+            </div>
+
+
+            <button
+                id="saveButton"
+                class="mt-8 w-full bg-green-600
+                       hover:bg-green-500
+                       rounded-xl py-3 font-bold">
+
+                Salva partita su Supabase
+
+            </button>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script type="module">
+
+import { supabase } from "./js/supabase.js";
+
+
+const screenshotInput =
+    document.getElementById("screenshot");
+
+const analyzeButton =
+    document.getElementById("analyzeButton");
+
+const saveButton =
+    document.getElementById("saveButton");
+
+const message =
+    document.getElementById("message");
+
+const resultContainer =
+    document.getElementById("resultContainer");
+
+const playersContainer =
+    document.getElementById("playersContainer");
+
+
+
+let ocrResult = null;
+
+
+
+// ============================================================
+// MESSAGGI
+// ============================================================
+
+function showMessage(text, type = "error") {
+
+    message.textContent = text;
+
+    message.className =
+        "mt-5 rounded-xl px-4 py-3 text-sm border";
+
+
+    if (type === "success") {
+
+        message.classList.add(
+            "bg-green-500/10",
+            "border-green-500/20",
+            "text-green-400"
+        );
+
+    } else {
+
+        message.classList.add(
+            "bg-red-500/10",
+            "border-red-500/20",
+            "text-red-400"
+        );
+
+    }
+
+}
+
+
+
+// ============================================================
+// CONTROLLO LOGIN
+// ============================================================
+
+async function checkUser() {
+
+    const {
+        data: {
+            user
+        }
+    } = await supabase.auth.getUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return null;
+
+    }
+
+
+    return user;
+
+}
+
+
+
+// ============================================================
+// ANALISI OCR
+// ============================================================
+
+analyzeButton.addEventListener(
+    "click",
+    async () => {
+
+        const file =
+            screenshotInput.files[0];
+
+
+        if (!file) {
+
+            showMessage(
+                "Seleziona prima uno screenshot."
+            );
+
+            return;
+
+        }
+
+
+        analyzeButton.disabled = true;
+
+        analyzeButton.textContent =
+            "Analisi OCR in corso...";
+
+
+        message.classList.add("hidden");
+
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "image",
+                file
+            );
+
+
+            /*
+             * SERVER PYTHON OCR
+             */
+
+            const response =
+                await fetch(
+                    "http://127.0.0.1:5000/ocr",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Il server OCR ha restituito un errore."
+                );
+
+            }
+
+
+            ocrResult =
+                await response.json();
+
+
+            if (!ocrResult.success) {
+
+                throw new Error(
+                    "OCR non riuscito."
+                );
+
+            }
+
+
+            displayOCRResult(
+                ocrResult
+            );
+
+
+            showMessage(
+                "Screenshot analizzato correttamente!",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Errore durante l'analisi OCR."
+            );
+
+        }
+
+
+        analyzeButton.disabled = false;
+
+        analyzeButton.textContent =
+            "Analizza screenshot";
+
+    }
+);
+
+
+
+// ============================================================
+// MOSTRA RISULTATO
+// ============================================================
+
+function displayOCRResult(result) {
+
+    playersContainer.innerHTML = "";
+
+
+    if (
+        !result.players ||
+        result.players.length === 0
+    ) {
+
+        playersContainer.innerHTML = `
+            <div class="text-slate-400">
+                Nessun giocatore trovato.
+            </div>
+        `;
+
+        resultContainer.classList.remove(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    result.players.forEach(
+        player => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "bg-slate-800 rounded-xl p-4";
+
+
+            card.innerHTML = `
+
+                <div class="flex justify-between items-center">
+
+                    <div>
+
+                        <div class="font-bold">
+                            ${escapeHTML(player.name)}
+                        </div>
+
+                        <div class="text-sm text-slate-400 mt-1">
+
+                            PTS ${player.PTS ?? 0}
+                            · REB ${player.REB ?? 0}
+                            · AST ${player.AST ?? 0}
+                            · STL ${player.STL ?? 0}
+                            · BLK ${player.BLK ?? 0}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="font-black text-blue-400">
+
+                        ${escapeHTML(
+                            player.grade || "-"
+                        )}
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            playersContainer.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    resultContainer.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+
+// ============================================================
+// SALVATAGGIO
+// ============================================================
+
+saveButton.addEventListener(
+    "click",
+    async () => {
+
+        if (!ocrResult) {
+
+            showMessage(
+                "Prima devi analizzare uno screenshot."
+            );
+
+            return;
+
+        }
+
+
+        const user =
+            await checkUser();
+
+
+        if (!user) {
+
+            return;
+
+        }
+
+
+        saveButton.disabled = true;
+
+        saveButton.textContent =
+            "Salvataggio...";
+
+
+        try {
+
+            /*
+             * CREA PARTITA
+             */
+
+            const {
+                data: match,
+                error: matchError
+            } = await supabase
+
+                .from("nba_matches")
+
+                .insert({
+
+                    user_id: user.id,
+
+                    ocr_raw_text:
+                        ocrResult.raw_text
+
+                })
+
+                .select()
+
+                .single();
+
+
+            if (matchError) {
+
+                throw matchError;
+
+            }
+
+
+            /*
+             * CREA STATISTICHE GIOCATORI
+             */
+
+            const players =
+                ocrResult.players.map(
+                    player => ({
+
+                        match_id:
+                            match.id,
+
+                        user_id:
+                            user.id,
+
+                        player_name:
+                            player.name || "Unknown",
+
+                        grade:
+                            player.grade || null,
+
+                        pts:
+                            Number(player.PTS) || 0,
+
+                        reb:
+                            Number(player.REB) || 0,
+
+                        ast:
+                            Number(player.AST) || 0,
+
+                        stl:
+                            Number(player.STL) || 0,
+
+                        blk:
+                            Number(player.BLK) || 0
+
+                    })
+                );
+
+
+            const {
+                error: playersError
+            } = await supabase
+
+                .from("nba_match_players")
+
+                .insert(players);
+
+
+            if (playersError) {
+
+                throw playersError;
+
+            }
+
+
+            showMessage(
+                "Partita salvata correttamente!",
+                "success"
+            );
+
+
+            saveButton.textContent =
+                "Salvata ✓";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Errore durante il salvataggio."
+            );
+
+
+            saveButton.disabled = false;
+
+            saveButton.textContent =
+                "Salva partita su Supabase";
+
+        }
+
+    }
+);
+
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+document
+    .getElementById("logoutButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            await supabase.auth.signOut();
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
+
+}
+
+
+
+checkUser();
+
+</script>
+
+</body>
+</html>

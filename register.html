@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registrazione | NBA 2K27 Tracker</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+
+    <div class="w-full max-w-md px-6">
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-black tracking-tight">
+                NBA<span class="text-blue-500">2K</span>
+            </h1>
+
+            <p class="text-slate-400 mt-2">
+                NBA 2K27 Tracker
+            </p>
+        </div>
+
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+
+            <h2 class="text-2xl font-bold mb-2">
+                Crea il tuo account
+            </h2>
+
+            <p class="text-slate-400 mb-6">
+                Inizia a tracciare le tue partite NBA 2K27
+            </p>
+
+
+            <!-- USERNAME -->
+
+            <div class="mb-4">
+
+                <label
+                    for="username"
+                    class="block text-sm font-medium text-slate-300 mb-2">
+
+                    Username
+
+                </label>
+
+                <input
+                    id="username"
+                    type="text"
+                    maxlength="30"
+                    placeholder="es. Cristian2K"
+                    autocomplete="username"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-blue-500 transition">
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="mb-4">
+
+                <label
+                    for="email"
+                    class="block text-sm font-medium text-slate-300 mb-2">
+
+                    Email
+
+                </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    placeholder="nome@email.com"
+                    autocomplete="email"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-blue-500 transition">
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="mb-4">
+
+                <label
+                    for="password"
+                    class="block text-sm font-medium text-slate-300 mb-2">
+
+                    Password
+
+                </label>
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Almeno 6 caratteri"
+                    autocomplete="new-password"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-blue-500 transition">
+
+            </div>
+
+
+            <!-- CONFERMA PASSWORD -->
+
+            <div class="mb-6">
+
+                <label
+                    for="confirmPassword"
+                    class="block text-sm font-medium text-slate-300 mb-2">
+
+                    Conferma password
+
+                </label>
+
+                <input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Ripeti la password"
+                    autocomplete="new-password"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 outline-none focus:border-blue-500 transition">
+
+            </div>
+
+
+            <!-- MESSAGGIO -->
+
+            <div
+                id="message"
+                class="hidden mb-4 rounded-xl px-4 py-3 text-sm">
+            </div>
+
+
+            <!-- BUTTON -->
+
+            <button
+                id="registerButton"
+                class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition rounded-xl py-3 font-bold">
+
+                Crea account
+
+            </button>
+
+
+            <!-- LOGIN -->
+
+            <p class="text-center text-slate-400 text-sm mt-6">
+
+                Hai già un account?
+
+                <a
+                    href="login.html"
+                    class="text-blue-400 hover:text-blue-300 font-semibold">
+
+                    Accedi
+
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script type="module">
+
+        import { supabase } from "./js/supabase.js";
+
+
+        const usernameInput = document.getElementById("username");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput =
+            document.getElementById("confirmPassword");
+
+        const registerButton =
+            document.getElementById("registerButton");
+
+        const message =
+            document.getElementById("message");
+
+
+        function showMessage(text, type) {
+
+            message.textContent = text;
+
+            message.className =
+                "mb-4 rounded-xl px-4 py-3 text-sm border";
+
+
+            if (type === "error") {
+
+                message.classList.add(
+                    "bg-red-500/10",
+                    "border-red-500/20",
+                    "text-red-400"
+                );
+
+            } else {
+
+                message.classList.add(
+                    "bg-green-500/10",
+                    "border-green-500/20",
+                    "text-green-400"
+                );
+
+            }
+
+        }
+
+
+        registerButton.addEventListener("click", async () => {
+
+            const username =
+                usernameInput.value.trim();
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+            const confirmPassword =
+                confirmPasswordInput.value;
+
+
+            // VALIDAZIONE
+
+            if (!username || !email || !password || !confirmPassword) {
+
+                showMessage(
+                    "Compila tutti i campi.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (username.length < 3) {
+
+                showMessage(
+                    "Lo username deve avere almeno 3 caratteri.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (password.length < 6) {
+
+                showMessage(
+                    "La password deve avere almeno 6 caratteri.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (password !== confirmPassword) {
+
+                showMessage(
+                    "Le password non coincidono.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            registerButton.disabled = true;
+
+            registerButton.textContent =
+                "Creazione account...";
+
+
+            try {
+
+                /*
+                 * 1. CREAZIONE ACCOUNT SUPABASE AUTH
+                 */
+
+                const { data, error } =
+                    await supabase.auth.signUp({
+
+                        email: email,
+
+                        password: password
+
+                    });
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                if (!data.user) {
+
+                    throw new Error(
+                        "Impossibile creare l'utente."
+                    );
+
+                }
+
+
+                /*
+                 * 2. CREAZIONE PROFILO NBA
+                 */
+
+                const { error: profileError } =
+                    await supabase
+                        .from("nba_users")
+                        .insert({
+
+                            id: data.user.id,
+
+                            username: username,
+
+                            display_name: username
+
+                        });
+
+
+                if (profileError) {
+
+                    throw profileError;
+
+                }
+
+
+                showMessage(
+                    "Account creato correttamente!",
+                    "success"
+                );
+
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "index.html";
+
+                }, 1200);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message ||
+                    "Errore durante la registrazione.",
+                    "error"
+                );
+
+
+                registerButton.disabled = false;
+
+                registerButton.textContent =
+                    "Crea account";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
