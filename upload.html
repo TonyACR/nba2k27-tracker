@@ -88,7 +88,7 @@
 
 <script type="module">
 import { supabase } from "./js/supabase.js";
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
+import { Client, handle_file } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
 
 const screenshotInput = document.getElementById("screenshot");
 const analyzeButton = document.getElementById("analyzeButton");
@@ -101,7 +101,6 @@ const playersContainer = document.getElementById("playersContainer");
 
 let rawOcrText = "";
 
-// Helper: Converti il file locale in stringa Base64 Data URL
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -135,7 +134,7 @@ async function checkUser() {
     return user;
 }
 
-// PARSER PER TESTO E TABELLE MARKDOWN RESTITUITE DA BAIDU UNLIMITED-OCR
+// PARSER PER TESTO E TABELLE MARKDOWN DI BAIDU UNLIMITED-OCR
 function parse2KBoxScore(text) {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     const players = [];
@@ -143,7 +142,6 @@ function parse2KBoxScore(text) {
     const gradeRegex = /\b(A\+|A-|A|B\+|B-|B|C\+|C-|C|D\+|D-|D|F)\b/i;
 
     lines.forEach(line => {
-        // Ignora intestazioni
         if (line.toUpperCase().includes('PTS') && line.toUpperCase().includes('REB')) return;
         if (line.includes('---')) return;
 
@@ -212,7 +210,7 @@ function parse2KBoxScore(text) {
     return players;
 }
 
-// ANALISI OCR TRAMITE HUGGING FACE (baidu/Unlimited-OCR)
+// ANALISI OCR SU /run_ocr
 analyzeButton.addEventListener("click", async () => {
     const file = screenshotInput.files[0];
     if (!file) {
@@ -221,39 +219,39 @@ analyzeButton.addEventListener("click", async () => {
     }
 
     analyzeButton.disabled = true;
-    btnText.textContent = "Connessione a baidu/Unlimited-OCR (AI)...";
-    showMessage("Connessione ad Hugging Face... Se il modello era in riposo, l'avvio potrebbe richiedere 15-20 secondi.", "info");
+    btnText.textContent = "Connessione a baidu/Unlimited-OCR...";
+    showMessage("Connessione in corso... Se lo space era in sleep, l'avvio richiede 10-15 secondi.", "info");
 
     try {
-        // 1. Converti file in Base64 Data URL (risolve l'errore "Invalid URL")
-        const base64Image = await fileToBase64(file);
-
-        // 2. Connettiti allo space baidu/Unlimited-OCR
         const client = await Client.connect("baidu/Unlimited-OCR");
-
         btnText.textContent = "Elaborazione immagine in corso...";
 
-        // 3. Chiamata all'endpoint
         let result;
         try {
-            result = await client.predict("/predict", [
+            // Chiamata all'endpoint corretto: /run_ocr
+            result = await client.predict("/run_ocr", [
+                handle_file(file),
+                "document parsing."
+            ]);
+        } catch (errHandle) {
+            console.warn("handle_file fallito, tento il fallback con Base64...", errHandle);
+            const base64Image = await fileToBase64(file);
+            result = await client.predict("/run_ocr", [
                 base64Image,
                 "document parsing."
             ]);
-        } catch (errPositional) {
-            console.warn("Chiamata posizionale fallita, provo con parametri con nome...", errPositional);
-            result = await client.predict("/predict", {
-                image: base64Image,
-                task_prompt: "document parsing."
-            });
         }
 
         console.log("Risposta baidu/Unlimited-OCR:", result);
 
+        if (!result || !result.data) {
+            throw new Error("Nessun dato restituito dal modello AI.");
+        }
+
         rawOcrText = Array.isArray(result.data) ? result.data.join("\n") : String(result.data || "");
 
         if (!rawOcrText || rawOcrText.trim().length === 0) {
-            throw new Error("Nessun testo estratto dall'immagine.");
+            throw new Error("L'OCR non ha estratto testo dall'immagine.");
         }
 
         const players = parse2KBoxScore(rawOcrText);
