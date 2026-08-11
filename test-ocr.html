@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>NBA 2K27 - Test Gemini OCR</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background: #0d0f14;
+        color: #fff;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 35px 20px 60px;
+    }
+
+    h1 {
+        margin: 0;
+    }
+
+    .subtitle {
+        color: #8d94a3;
+        margin: 8px 0 30px;
+    }
+
+    .card {
+        background: #171a21;
+        border: 1px solid #292e38;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 20px;
+    }
+
+    .upload {
+        border: 2px dashed #3a414e;
+        border-radius: 13px;
+        padding: 45px 20px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .upload:hover {
+        background: #1d222b;
+    }
+
+    .icon {
+        font-size: 42px;
+        margin-bottom: 10px;
+    }
+
+    .title {
+        font-size: 17px;
+        font-weight: bold;
+    }
+
+    .sub {
+        color: #777f8d;
+        margin-top: 7px;
+        font-size: 13px;
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    #preview {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #preview img {
+        width: 100%;
+        max-height: 650px;
+        object-fit: contain;
+        background: #050608;
+        border-radius: 10px;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        border: 0;
+        border-radius: 8px;
+        padding: 12px 18px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+    }
+
+    .primary {
+        background: white;
+        color: #111;
+    }
+
+    .secondary {
+        background: #2a303b;
+        color: white;
+    }
+
+    .status {
+        margin-top: 18px;
+        padding: 13px;
+        border-radius: 8px;
+        display: none;
+    }
+
+    .loading {
+        display: block;
+        background: #252b35;
+    }
+
+    .success {
+        display: block;
+        background: #193b2a;
+        color: #a4edbd;
+    }
+
+    .error {
+        display: block;
+        background: #411f24;
+        color: #ffabb3;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 450px;
+        resize: vertical;
+        background: #0a0d11;
+        border: 1px solid #303642;
+        border-radius: 8px;
+        color: #dfe4eb;
+        padding: 15px;
+        font-family: Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .result {
+        display: none;
+    }
+
+    .small {
+        color: #7e8795;
+        font-size: 12px;
+        margin-top: 10px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="container">
+
+```
+<h1>NBA 2K27 Tracker</h1>
+
+<div class="subtitle">
+    Test Gemini OCR
+</div>
+
+<div class="card">
+
+    <h2>Test GAME STATS</h2>
+
+    <div id="upload" class="upload">
+
+        <div class="icon">📷</div>
+
+        <div class="title">
+            Seleziona uno screenshot GAME STATS
+        </div>
+
+        <div class="sub">
+            Clicca qui per scegliere l'immagine
+        </div>
+
+    </div>
+
+    <input
+        id="fileInput"
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp"
+    >
+
+    <div id="preview">
+
+        <img id="previewImage" alt="NBA 2K Screenshot">
+
+    </div>
+
+    <div class="actions">
+
+        <button
+            id="analyze"
+            class="primary"
+            disabled
+        >
+            Analizza con Gemini
+        </button>
+
+        <button
+            id="remove"
+            class="secondary"
+            disabled
+        >
+            Rimuovi
+        </button>
+
+    </div>
+
+    <div id="status" class="status"></div>
+
+</div>
+
+<div id="result" class="card result">
+
+    <h2>Risultato Gemini</h2>
+
+    <textarea
+        id="output"
+        spellcheck="false"
+    ></textarea>
+
+</div>
+```
+
+</div>
+
+<script>
+
+const upload =
+    document.getElementById("upload");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const preview =
+    document.getElementById("preview");
+
+const previewImage =
+    document.getElementById("previewImage");
+
+const analyze =
+    document.getElementById("analyze");
+
+const remove =
+    document.getElementById("remove");
+
+const status =
+    document.getElementById("status");
+
+const result =
+    document.getElementById("result");
+
+const output =
+    document.getElementById("output");
+
+let selectedFile = null;
+
+
+/* =========================
+   UPLOAD
+========================= */
+
+upload.addEventListener("click", () => {
+    fileInput.click();
+});
+
+
+fileInput.addEventListener("change", () => {
+
+    if (!fileInput.files.length) {
+        return;
+    }
+
+    selectFile(fileInput.files[0]);
+
+});
+
+
+function selectFile(file) {
+
+    if (!file.type.startsWith("image/")) {
+
+        showStatus(
+            "Seleziona un'immagine.",
+            "error"
+        );
+
+        return;
+    }
+
+    selectedFile = file;
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+
+        previewImage.src =
+            event.target.result;
+
+        preview.style.display =
+            "block";
+
+        analyze.disabled =
+            false;
+
+        remove.disabled =
+            false;
+
+        result.style.display =
+            "none";
+
+        hideStatus();
+
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+/* =========================
+   REMOVE
+========================= */
+
+remove.addEventListener("click", () => {
+
+    selectedFile = null;
+
+    fileInput.value = "";
+
+    previewImage.src = "";
+
+    preview.style.display =
+        "none";
+
+    analyze.disabled =
+        true;
+
+    remove.disabled =
+        true;
+
+    result.style.display =
+        "none";
+
+});
+
+
+/* =========================
+   ANALYZE
+========================= */
+
+analyze.addEventListener("click", async () => {
+
+    if (!selectedFile) {
+        return;
+    }
+
+    analyze.disabled = true;
+
+    showStatus(
+        "⏳ Invio screenshot a Gemini...",
+        "loading"
+    );
+
+    try {
+
+        const base64 =
+            await fileToBase64(selectedFile);
+
+        console.log(
+            "Invio immagine a /api/ocr"
+        );
+
+        const response =
+            await fetch(
+                "/api/ocr",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        image: base64
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Risposta server:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Errore HTTP " +
+                response.status
+            );
+
+        }
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.error ||
+                "Gemini non ha restituito un risultato."
+            );
+
+        }
+
+
+        output.value =
+            JSON.stringify(
+                data.data,
+                null,
+                2
+            );
+
+
+        result.style.display =
+            "block";
+
+
+        showStatus(
+            "✅ OCR completato correttamente!",
+            "success"
+        );
+
+
+        result.scrollIntoView({
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "❌ " + error.message,
+            "error"
+        );
+
+    } finally {
+
+        analyze.disabled =
+            false;
+
+    }
+
+});
+
+
+/* =========================
+   FILE → BASE64
+========================= */
+
+function fileToBase64(file) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const reader =
+                new FileReader();
+
+            reader.onload = () => {
+
+                resolve(
+                    reader.result
+                );
+
+            };
+
+            reader.onerror = () => {
+
+                reject(
+                    new Error(
+                        "Impossibile leggere l'immagine."
+                    )
+                );
+
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+    );
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+function showStatus(
+    message,
+    type
+) {
+
+    status.textContent =
+        message;
+
+    status.className =
+        "status " +
+        type;
+
+}
+
+
+function hideStatus() {
+
+    status.textContent =
+        "";
+
+    status.className =
+        "status";
+
+}
+
+</script>
+
+</body>
+</html>
