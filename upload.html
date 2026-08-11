@@ -1,318 +1,317 @@
-```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>NBA 2K27 Tracker - OCR</title>
+<title>NBA 2K27 Tracker - Game Stats OCR</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+* {
+    box-sizing: border-box;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #0f1117;
-            color: #ffffff;
-            min-height: 100vh;
-        }
+body {
+    margin: 0;
+    background: #0d0f14;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
 
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+.container {
+    max-width: 1250px;
+    margin: auto;
+    padding: 35px 20px 60px;
+}
 
-        h1 {
-            margin: 0 0 8px;
-            font-size: 32px;
-        }
+h1 {
+    margin: 0;
+    font-size: 32px;
+}
 
-        .subtitle {
-            color: #9298a5;
-            margin-bottom: 30px;
-        }
+.subtitle {
+    color: #8d94a3;
+    margin-top: 8px;
+    margin-bottom: 30px;
+}
 
-        .card {
-            background: #181b23;
-            border: 1px solid #292e39;
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
+.card {
+    background: #171a21;
+    border: 1px solid #292e38;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 20px;
-        }
+.card h2 {
+    margin: 0 0 18px;
+    font-size: 20px;
+}
 
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #dfe3ea;
-        }
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #aeb5c2;
+}
 
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 13px 14px;
-            border-radius: 9px;
-            border: 1px solid #343a47;
-            background: #10131a;
-            color: white;
-            outline: none;
-            font-size: 14px;
-        }
+input[type="password"] {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid #363c48;
+    background: #0d1015;
+    color: white;
+    outline: none;
+}
 
-        input:focus {
-            border-color: #5b8cff;
-        }
+input[type="password"]:focus {
+    border-color: #777f8d;
+}
 
-        .api-row {
-            display: flex;
-            gap: 10px;
-        }
+.api-row {
+    display: flex;
+    gap: 10px;
+}
 
-        .api-row input {
-            flex: 1;
-        }
+.api-row input {
+    flex: 1;
+}
 
-        button {
-            border: 0;
-            border-radius: 9px;
-            padding: 12px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.15s;
-        }
+button {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 17px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
 
-        button:hover {
-            transform: translateY(-1px);
-        }
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
 
-        .primary {
-            background: #ffffff;
-            color: #111318;
-        }
+.primary {
+    background: white;
+    color: #111;
+}
 
-        .secondary {
-            background: #292e39;
-            color: white;
-        }
+.secondary {
+    background: #2a303b;
+    color: white;
+}
 
-        .danger {
-            background: #702b32;
-            color: white;
-        }
+.danger {
+    background: #612a30;
+    color: white;
+}
 
-        .upload-area {
-            border: 2px dashed #3b4250;
-            border-radius: 14px;
-            padding: 45px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+.upload {
+    border: 2px dashed #3a414e;
+    border-radius: 13px;
+    padding: 45px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s;
+}
 
-        .upload-area:hover {
-            border-color: #6c7483;
-            background: #1c2029;
-        }
+.upload:hover,
+.upload.drag {
+    background: #1d222b;
+    border-color: #777f8d;
+}
 
-        .upload-area.dragover {
-            border-color: #ffffff;
-            background: #20242e;
-        }
+.upload-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
 
-        .upload-icon {
-            font-size: 42px;
-            margin-bottom: 12px;
-        }
+.upload-title {
+    font-size: 17px;
+    font-weight: bold;
+}
 
-        .upload-text {
-            font-size: 17px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+.upload-subtitle {
+    color: #777f8d;
+    margin-top: 7px;
+    font-size: 13px;
+}
 
-        .upload-subtext {
-            color: #858c99;
-            font-size: 13px;
-        }
+#fileInput {
+    display: none;
+}
 
-        #fileInput {
-            display: none;
-        }
+.preview {
+    display: none;
+    margin-top: 20px;
+}
 
-        .preview-container {
-            display: none;
-            margin-top: 20px;
-        }
+.preview img {
+    display: block;
+    width: 100%;
+    max-height: 650px;
+    object-fit: contain;
+    background: #050608;
+    border-radius: 10px;
+}
 
-        .preview-container img {
-            display: block;
-            max-width: 100%;
-            max-height: 600px;
-            margin: 0 auto;
-            border-radius: 10px;
-            border: 1px solid #343a47;
-        }
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: #858d9b;
+    font-size: 13px;
+}
 
-        .file-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-top: 12px;
-            padding: 12px;
-            background: #10131a;
-            border-radius: 8px;
-            color: #9ca3af;
-            font-size: 13px;
-        }
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
+.status {
+    display: none;
+    margin-top: 18px;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 14px;
+}
 
-        .status {
-            display: none;
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 9px;
-            font-size: 14px;
-        }
+.status.loading {
+    display: block;
+    background: #252b35;
+    color: #dbe0e8;
+}
 
-        .status.loading {
-            display: block;
-            background: #252a34;
-            color: #d9dee8;
-        }
+.status.success {
+    display: block;
+    background: #193b2a;
+    color: #a4edbd;
+}
 
-        .status.success {
-            display: block;
-            background: #193a29;
-            color: #9ae6b4;
-        }
+.status.error {
+    display: block;
+    background: #411f24;
+    color: #ffabb3;
+}
 
-        .status.error {
-            display: block;
-            background: #401e22;
-            color: #ff9ca5;
-        }
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #777;
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin-right: 7px;
+    vertical-align: -2px;
+}
 
-        .spinner {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            border: 2px solid #777;
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+.result {
+    display: none;
+}
 
-        .result-section {
-            display: none;
-        }
+.team {
+    margin-bottom: 30px;
+}
 
-        textarea {
-            width: 100%;
-            min-height: 300px;
-            resize: vertical;
-            padding: 15px;
-            border-radius: 9px;
-            border: 1px solid #343a47;
-            background: #0d1016;
-            color: #e8ebef;
-            font-family: Consolas, monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            outline: none;
-        }
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
 
-        .result-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
+.team-name {
+    font-size: 21px;
+    font-weight: bold;
+}
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
+.score {
+    font-size: 28px;
+    font-weight: bold;
+}
 
-        .stat {
-            background: #10131a;
-            border-radius: 9px;
-            padding: 15px;
-        }
+.table-wrap {
+    overflow-x: auto;
+}
 
-        .stat-title {
-            color: #858c99;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
+}
 
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
+th {
+    text-align: left;
+    color: #8e96a4;
+    font-size: 11px;
+    padding: 10px 8px;
+    border-bottom: 1px solid #343a45;
+}
 
-        .warning {
-            margin-top: 10px;
-            color: #e9b949;
-            font-size: 12px;
-            line-height: 1.5;
-        }
+td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #242933;
+    font-size: 13px;
+}
 
-        .hidden {
-            display: none !important;
-        }
+td:not(:first-child) {
+    text-align: center;
+}
 
-        @media (max-width: 700px) {
-            .container {
-                padding: 25px 14px;
-            }
+.total {
+    font-weight: bold;
+    background: #242a33;
+}
 
-            h1 {
-                font-size: 26px;
-            }
+.json-box,
+.raw-box {
+    width: 100%;
+    min-height: 300px;
+    resize: vertical;
+    background: #0a0d11;
+    border: 1px solid #303642;
+    border-radius: 8px;
+    color: #dfe4eb;
+    padding: 15px;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
 
-            .api-row {
-                flex-direction: column;
-            }
+.raw-box {
+    min-height: 220px;
+}
 
-            .stats {
-                grid-template-columns: 1fr;
-            }
+.small {
+    color: #7e8795;
+    font-size: 12px;
+    margin-top: 8px;
+}
 
-            .file-info {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-    </style>
+@media(max-width:700px) {
+    .container {
+        padding: 22px 12px;
+    }
+
+    .api-row {
+        flex-direction: column;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -322,36 +321,45 @@
     <h1>NBA 2K27 Tracker</h1>
 
     <div class="subtitle">
-        Screenshot OCR — estrazione automatica delle statistiche
+        GAME STATS OCR — OCR.space
     </div>
 
-    <!-- API -->
+
+    <!-- API KEY -->
     <div class="card">
 
         <h2>OCR.space</h2>
 
-        <label for="apiKey">API Key</label>
+        <label for="apiKey">
+            API Key
+        </label>
 
         <div class="api-row">
+
             <input
-                type="password"
                 id="apiKey"
-                placeholder="Inserisci la tua API key OCR.space"
-                autocomplete="off"
+                type="password"
+                placeholder="Inserisci la API key OCR.space"
             >
 
-            <button class="secondary" id="saveKeyBtn">
+            <button
+                id="saveKey"
+                class="secondary"
+            >
                 Salva
             </button>
 
-            <button class="danger" id="deleteKeyBtn">
+            <button
+                id="deleteKey"
+                class="danger"
+            >
                 Elimina
             </button>
+
         </div>
 
-        <div class="warning">
+        <div class="small">
             La chiave viene salvata solamente nel localStorage del browser.
-            Non inserirla direttamente nel codice se pubblicherai questa pagina.
         </div>
 
     </div>
@@ -363,43 +371,45 @@
         <h2>Carica partita</h2>
 
         <div
-            class="upload-area"
-            id="uploadArea"
+            id="upload"
+            class="upload"
         >
 
-            <div class="upload-icon">📷</div>
-
-            <div class="upload-text">
-                Trascina qui lo screenshot
+            <div class="upload-icon">
+                📷
             </div>
 
-            <div class="upload-subtext">
-                oppure clicca per selezionare un'immagine
+            <div class="upload-title">
+                Trascina qui il GAME STATS
+            </div>
+
+            <div class="upload-subtitle">
+                oppure clicca per selezionare lo screenshot
             </div>
 
         </div>
 
         <input
-            type="file"
             id="fileInput"
+            type="file"
             accept="image/png,image/jpeg,image/jpg,image/webp"
         >
 
-        <!-- PREVIEW -->
+
         <div
-            class="preview-container"
-            id="previewContainer"
+            id="preview"
+            class="preview"
         >
 
             <img
                 id="previewImage"
-                alt="Anteprima screenshot"
+                alt="Screenshot NBA 2K"
             >
 
             <div class="file-info">
 
                 <span id="fileName">
-                    Nessun file
+                    -
                 </span>
 
                 <span id="fileSize">
@@ -410,116 +420,196 @@
 
         </div>
 
-        <!-- BUTTONS -->
+
         <div class="actions">
 
             <button
+                id="analyze"
                 class="primary"
-                id="analyzeBtn"
                 disabled
             >
-                Analizza screenshot
+                Analizza GAME STATS
             </button>
 
             <button
+                id="remove"
                 class="secondary"
-                id="removeBtn"
                 disabled
             >
-                Rimuovi screenshot
+                Rimuovi
             </button>
 
         </div>
 
-        <!-- STATUS -->
+
         <div
-            class="status"
             id="status"
+            class="status"
         ></div>
 
     </div>
 
 
-    <!-- OCR RESULT -->
+    <!-- STRUCTURED RESULT -->
     <div
-        class="card result-section"
-        id="resultSection"
+        id="result"
+        class="card result"
     >
 
-        <h2>Testo riconosciuto</h2>
+        <h2>
+            Statistiche riconosciute
+        </h2>
+
+
+        <!-- AWAY -->
+        <div class="team">
+
+            <div class="team-header">
+
+                <div class="team-name">
+                    Away Team
+                </div>
+
+                <div
+                    id="awayScore"
+                    class="score"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>PLAYER</th>
+                        <th>GRD</th>
+                        <th>PTS</th>
+                        <th>REB</th>
+                        <th>AST</th>
+                        <th>STL</th>
+                        <th>BLK</th>
+                        <th>FOULS</th>
+                        <th>TO</th>
+                        <th>FGM/FGA</th>
+                        <th>3PM/3PA</th>
+                        <th>FTM/FTA</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="awayPlayers"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- HOME -->
+        <div class="team">
+
+            <div class="team-header">
+
+                <div class="team-name">
+                    Home Team
+                </div>
+
+                <div
+                    id="homeScore"
+                    class="score"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>PLAYER</th>
+                        <th>GRD</th>
+                        <th>PTS</th>
+                        <th>REB</th>
+                        <th>AST</th>
+                        <th>STL</th>
+                        <th>BLK</th>
+                        <th>FOULS</th>
+                        <th>TO</th>
+                        <th>FGM/FGA</th>
+                        <th>3PM/3PA</th>
+                        <th>FTM/FTA</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="homePlayers"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- JSON -->
+        <h2>
+            JSON
+        </h2>
 
         <textarea
-            id="ocrResult"
+            id="json"
+            class="json-box"
             spellcheck="false"
         ></textarea>
 
-        <div class="result-actions">
+        <div class="actions">
 
             <button
+                id="copyJson"
                 class="primary"
-                id="copyBtn"
             >
-                Copia testo
+                Copia JSON
             </button>
 
             <button
+                id="downloadJson"
                 class="secondary"
-                id="downloadBtn"
             >
-                Scarica TXT
-            </button>
-
-            <button
-                class="secondary"
-                id="clearResultBtn"
-            >
-                Cancella risultato
+                Scarica JSON
             </button>
 
         </div>
 
-        <div class="stats">
+    </div>
 
-            <div class="stat">
-                <div class="stat-title">
-                    Caratteri
-                </div>
 
-                <div
-                    class="stat-value"
-                    id="characterCount"
-                >
-                    0
-                </div>
-            </div>
+    <!-- RAW OCR -->
+    <div
+        id="rawSection"
+        class="card result"
+    >
 
-            <div class="stat">
-                <div class="stat-title">
-                    Parole
-                </div>
+        <h2>
+            OCR grezzo
+        </h2>
 
-                <div
-                    class="stat-value"
-                    id="wordCount"
-                >
-                    0
-                </div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-title">
-                    Righe
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="lineCount"
-                >
-                    0
-                </div>
-            </div>
-
-        </div>
+        <textarea
+            id="raw"
+            class="raw-box"
+            spellcheck="false"
+        ></textarea>
 
     </div>
 
@@ -528,913 +618,2016 @@
 
 <script>
 
-    /*
-     * ============================================================
-     * CONFIGURAZIONE
-     * ============================================================
-     */
+/* ============================================================
+   CONFIG
+============================================================ */
 
-    const OCR_API_URL = "https://api.ocr.space/parse/image";
+const OCR_URL =
+    "https://api.ocr.space/parse/image";
 
-    /*
-     * 2 = OCR Engine 2
-     *
-     * Se dovesse dare risultati peggiori con gli screenshot
-     * NBA 2K, possiamo provare Engine 1.
-     */
-    const OCR_ENGINE = "2";
+const OCR_ENGINE =
+    "2";
 
-    /*
-     * Lingua:
-     *
-     * Gli screenshot NBA 2K normalmente hanno testo inglese.
-     */
-    const OCR_LANGUAGE = "eng";
+const OCR_LANGUAGE =
+    "eng";
 
 
-    /*
-     * ============================================================
-     * ELEMENTI DOM
-     * ============================================================
-     */
+/*
+ * Colonne della tabella NBA 2K.
+ *
+ * Coordinate approssimative sullo screenshot originale
+ * 1521x855.
+ *
+ * L'OCR ci restituisce Left/Top per ogni parola.
+ */
 
-    const apiKeyInput = document.getElementById("apiKey");
-    const saveKeyBtn = document.getElementById("saveKeyBtn");
-    const deleteKeyBtn = document.getElementById("deleteKeyBtn");
-
-    const uploadArea = document.getElementById("uploadArea");
-    const fileInput = document.getElementById("fileInput");
-
-    const previewContainer = document.getElementById("previewContainer");
-    const previewImage = document.getElementById("previewImage");
-
-    const fileName = document.getElementById("fileName");
-    const fileSize = document.getElementById("fileSize");
-
-    const analyzeBtn = document.getElementById("analyzeBtn");
-    const removeBtn = document.getElementById("removeBtn");
-
-    const statusBox = document.getElementById("status");
-
-    const resultSection = document.getElementById("resultSection");
-    const ocrResult = document.getElementById("ocrResult");
-
-    const copyBtn = document.getElementById("copyBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const clearResultBtn = document.getElementById("clearResultBtn");
-
-    const characterCount = document.getElementById("characterCount");
-    const wordCount = document.getElementById("wordCount");
-    const lineCount = document.getElementById("lineCount");
+const COLUMN_CENTERS = {
+    name: 525,
+    grade: 696,
+    pts: 756,
+    reb: 816,
+    ast: 877,
+    stl: 938,
+    blk: 997,
+    fouls: 1056,
+    to: 1113,
+    fg: 1189,
+    three: 1280,
+    ft: 1368
+};
 
 
-    /*
-     * ============================================================
-     * STATO
-     * ============================================================
-     */
+/* ============================================================
+   DOM
+============================================================ */
 
-    let selectedFile = null;
+const apiKey =
+    document.getElementById("apiKey");
+
+const saveKey =
+    document.getElementById("saveKey");
+
+const deleteKey =
+    document.getElementById("deleteKey");
+
+const upload =
+    document.getElementById("upload");
+
+const fileInput =
+    document.getElementById("fileInput");
+
+const preview =
+    document.getElementById("preview");
+
+const previewImage =
+    document.getElementById("previewImage");
+
+const fileName =
+    document.getElementById("fileName");
+
+const fileSize =
+    document.getElementById("fileSize");
+
+const analyze =
+    document.getElementById("analyze");
+
+const remove =
+    document.getElementById("remove");
+
+const status =
+    document.getElementById("status");
+
+const result =
+    document.getElementById("result");
+
+const rawSection =
+    document.getElementById("rawSection");
+
+const raw =
+    document.getElementById("raw");
+
+const json =
+    document.getElementById("json");
+
+const awayPlayers =
+    document.getElementById("awayPlayers");
+
+const homePlayers =
+    document.getElementById("homePlayers");
+
+const awayScore =
+    document.getElementById("awayScore");
+
+const homeScore =
+    document.getElementById("homeScore");
+
+const copyJson =
+    document.getElementById("copyJson");
+
+const downloadJson =
+    document.getElementById("downloadJson");
 
 
-    /*
-     * ============================================================
-     * API KEY
-     * ============================================================
-     */
+let selectedFile = null;
 
-    function loadApiKey() {
 
-        const savedKey = localStorage.getItem("ocr_space_api_key");
+/* ============================================================
+   API KEY
+============================================================ */
 
-        if (savedKey) {
-            apiKeyInput.value = savedKey;
-        }
+const savedKey =
+    localStorage.getItem("ocr_space_api_key");
 
+if (savedKey) {
+    apiKey.value = savedKey;
+}
+
+
+saveKey.addEventListener("click", () => {
+
+    const value =
+        apiKey.value.trim();
+
+    if (!value) {
+        alert("Inserisci una API key.");
+        return;
     }
 
+    localStorage.setItem(
+        "ocr_space_api_key",
+        value
+    );
 
-    saveKeyBtn.addEventListener("click", () => {
+    alert("API key salvata.");
 
-        const key = apiKeyInput.value.trim();
+});
 
-        if (!key) {
 
-            alert("Inserisci una API key.");
+deleteKey.addEventListener("click", () => {
 
-            return;
-        }
+    localStorage.removeItem(
+        "ocr_space_api_key"
+    );
 
-        localStorage.setItem(
-            "ocr_space_api_key",
-            key
-        );
+    apiKey.value = "";
 
-        alert("API key salvata.");
+    alert("API key eliminata.");
 
-    });
+});
 
 
-    deleteKeyBtn.addEventListener("click", () => {
+/* ============================================================
+   UPLOAD
+============================================================ */
 
-        localStorage.removeItem(
-            "ocr_space_api_key"
-        );
+upload.addEventListener("click", () => {
+    fileInput.click();
+});
 
-        apiKeyInput.value = "";
 
-        alert("API key eliminata.");
+fileInput.addEventListener("change", () => {
 
-    });
-
-
-    loadApiKey();
-
-
-    /*
-     * ============================================================
-     * UPLOAD
-     * ============================================================
-     */
-
-    uploadArea.addEventListener("click", () => {
-
-        fileInput.click();
-
-    });
-
-
-    fileInput.addEventListener("change", () => {
-
-        if (!fileInput.files || !fileInput.files.length) {
-            return;
-        }
-
-        handleFile(fileInput.files[0]);
-
-    });
-
-
-    /*
-     * ============================================================
-     * DRAG & DROP
-     * ============================================================
-     */
-
-    uploadArea.addEventListener("dragover", (event) => {
-
-        event.preventDefault();
-
-        uploadArea.classList.add("dragover");
-
-    });
-
-
-    uploadArea.addEventListener("dragleave", () => {
-
-        uploadArea.classList.remove("dragover");
-
-    });
-
-
-    uploadArea.addEventListener("drop", (event) => {
-
-        event.preventDefault();
-
-        uploadArea.classList.remove("dragover");
-
-        const files = event.dataTransfer.files;
-
-        if (!files || !files.length) {
-            return;
-        }
-
-        handleFile(files[0]);
-
-    });
-
-
-    /*
-     * ============================================================
-     * GESTIONE FILE
-     * ============================================================
-     */
-
-    function handleFile(file) {
-
-        if (!file.type.startsWith("image/")) {
-
-            showStatus(
-                "Il file selezionato non è un'immagine.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        selectedFile = file;
-
-
-        fileName.textContent = file.name;
-
-        fileSize.textContent =
-            formatFileSize(file.size);
-
-
-        const reader = new FileReader();
-
-
-        reader.onload = function(event) {
-
-            previewImage.src = event.target.result;
-
-            previewContainer.style.display = "block";
-
-            analyzeBtn.disabled = false;
-
-            removeBtn.disabled = false;
-
-            resultSection.style.display = "none";
-
-            hideStatus();
-
-        };
-
-
-        reader.readAsDataURL(file);
-
+    if (!fileInput.files.length) {
+        return;
     }
 
+    selectFile(
+        fileInput.files[0]
+    );
 
-    /*
-     * ============================================================
-     * RIMOZIONE FILE
-     * ============================================================
-     */
+});
 
-    removeBtn.addEventListener("click", () => {
 
-        selectedFile = null;
+upload.addEventListener("dragover", event => {
 
-        fileInput.value = "";
+    event.preventDefault();
 
-        previewImage.src = "";
+    upload.classList.add("drag");
 
-        previewContainer.style.display = "none";
+});
 
-        analyzeBtn.disabled = true;
 
-        removeBtn.disabled = true;
+upload.addEventListener("dragleave", () => {
 
-        resultSection.style.display = "none";
+    upload.classList.remove("drag");
+
+});
+
+
+upload.addEventListener("drop", event => {
+
+    event.preventDefault();
+
+    upload.classList.remove("drag");
+
+    if (!event.dataTransfer.files.length) {
+        return;
+    }
+
+    selectFile(
+        event.dataTransfer.files[0]
+    );
+
+});
+
+
+function selectFile(file) {
+
+    if (!file.type.startsWith("image/")) {
+
+        showStatus(
+            "Il file deve essere un'immagine.",
+            "error"
+        );
+
+        return;
+    }
+
+    selectedFile = file;
+
+    fileName.textContent =
+        file.name;
+
+    fileSize.textContent =
+        formatBytes(file.size);
+
+    const reader =
+        new FileReader();
+
+    reader.onload = event => {
+
+        previewImage.src =
+            event.target.result;
+
+        preview.style.display =
+            "block";
+
+        analyze.disabled =
+            false;
+
+        remove.disabled =
+            false;
+
+        result.style.display =
+            "none";
+
+        rawSection.style.display =
+            "none";
 
         hideStatus();
 
-    });
+    };
+
+    reader.readAsDataURL(file);
+}
 
 
-    /*
-     * ============================================================
-     * ANALISI OCR
-     * ============================================================
-     */
+/* ============================================================
+   REMOVE
+============================================================ */
 
-    analyzeBtn.addEventListener("click", async () => {
+remove.addEventListener("click", () => {
 
-        if (!selectedFile) {
+    selectedFile = null;
 
-            showStatus(
-                "Seleziona prima uno screenshot.",
-                "error"
-            );
+    fileInput.value = "";
 
-            return;
-        }
+    previewImage.src = "";
 
+    preview.style.display =
+        "none";
 
-        const apiKey =
-            apiKeyInput.value.trim();
+    analyze.disabled =
+        true;
 
+    remove.disabled =
+        true;
 
-        if (!apiKey) {
+    result.style.display =
+        "none";
 
-            showStatus(
-                "Inserisci prima la API key di OCR.space.",
-                "error"
-            );
+    rawSection.style.display =
+        "none";
 
-            return;
-        }
+});
 
 
-        analyzeBtn.disabled = true;
+/* ============================================================
+   ANALYZE
+============================================================ */
 
+analyze.addEventListener("click", async () => {
+
+    if (!selectedFile) {
+        return;
+    }
+
+    const key =
+        apiKey.value.trim();
+
+    if (!key) {
 
         showStatus(
-            '<span class="spinner"></span> Analisi dello screenshot in corso...',
-            "loading"
+            "Inserisci la API key OCR.space.",
+            "error"
+        );
+
+        return;
+    }
+
+    analyze.disabled = true;
+
+    showStatus(
+        '<span class="spinner"></span> Lettura GAME STATS in corso...',
+        "loading"
+    );
+
+    try {
+
+        const optimized =
+            await optimizeImage(
+                selectedFile
+            );
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "apikey",
+            key
+        );
+
+        formData.append(
+            "language",
+            OCR_LANGUAGE
+        );
+
+        formData.append(
+            "OCREngine",
+            OCR_ENGINE
+        );
+
+        /*
+         * Fondamentale:
+         * restituisce le coordinate delle parole.
+         */
+
+        formData.append(
+            "isOverlayRequired",
+            "true"
+        );
+
+        formData.append(
+            "scale",
+            "true"
+        );
+
+        formData.append(
+            "isTable",
+            "true"
+        );
+
+        formData.append(
+            "file",
+            optimized,
+            "nba2k.jpg"
         );
 
 
-        try {
-
-            /*
-             * Convertiamo l'immagine in una versione
-             * ottimizzata prima di mandarla all'OCR.
-             */
-
-            const optimizedImage =
-                await optimizeImage(selectedFile);
-
-
-            const formData = new FormData();
-
-            formData.append(
-                "apikey",
-                apiKey
-            );
-
-            formData.append(
-                "language",
-                OCR_LANGUAGE
-            );
-
-            formData.append(
-                "isOverlayRequired",
-                "false"
-            );
-
-            formData.append(
-                "OCREngine",
-                OCR_ENGINE
-            );
-
-            formData.append(
-                "scale",
-                "true"
-            );
-
-            formData.append(
-                "file",
-                optimizedImage,
-                "nba2k-screenshot.jpg"
-            );
-
-
-            const response =
-                await fetch(
-                    OCR_API_URL,
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "HTTP error " +
-                    response.status
-                );
-
-            }
-
-
-            const data =
-                await response.json();
-
-
-            /*
-             * ====================================================
-             * CONTROLLO RISPOSTA OCR.SPACE
-             * ====================================================
-             */
-
-            if (data.IsErroredOnProcessing) {
-
-                let message =
-                    "OCR.space ha restituito un errore.";
-
-                if (Array.isArray(data.ErrorMessage)) {
-
-                    message =
-                        data.ErrorMessage.join("\n");
-
-                } else if (data.ErrorMessage) {
-
-                    message =
-                        data.ErrorMessage;
-
+        const response =
+            await fetch(
+                OCR_URL,
+                {
+                    method: "POST",
+                    body: formData
                 }
-
-                throw new Error(message);
-
-            }
-
-
-            if (
-                !data.ParsedResults ||
-                !data.ParsedResults.length
-            ) {
-
-                throw new Error(
-                    "Nessun testo trovato nello screenshot."
-                );
-
-            }
-
-
-            /*
-             * OCR.space può restituire più risultati.
-             *
-             * Li uniamo tutti.
-             */
-
-            const text =
-                data.ParsedResults
-                    .map(result => result.ParsedText || "")
-                    .join("\n")
-                    .trim();
-
-
-            if (!text) {
-
-                throw new Error(
-                    "L'OCR non ha riconosciuto alcun testo."
-                );
-
-            }
-
-
-            /*
-             * Mostriamo il risultato.
-             */
-
-            displayOCRResult(text);
-
-
-            showStatus(
-                "Screenshot analizzato correttamente.",
-                "success"
             );
 
 
-        } catch (error) {
+        if (!response.ok) {
 
-            console.error(
-                "OCR ERROR:",
-                error
+            throw new Error(
+                "Errore HTTP " +
+                response.status
             );
-
-
-            showStatus(
-                "Errore OCR: " +
-                error.message,
-                "error"
-            );
-
-        } finally {
-
-            analyzeBtn.disabled = false;
 
         }
 
-    });
+
+        const data =
+            await response.json();
+
+
+        if (data.IsErroredOnProcessing) {
+
+            let message =
+                "Errore OCR.space.";
+
+            if (Array.isArray(data.ErrorMessage)) {
+                message =
+                    data.ErrorMessage.join("\n");
+            } else if (data.ErrorMessage) {
+                message =
+                    data.ErrorMessage;
+            }
+
+            throw new Error(message);
+        }
+
+
+        if (!data.ParsedResults?.length) {
+
+            throw new Error(
+                "OCR.space non ha restituito risultati."
+            );
+
+        }
+
+
+        const parsed =
+            data.ParsedResults[0];
+
+
+        const text =
+            parsed.ParsedText || "";
+
+
+        raw.value =
+            text;
+
+        rawSection.style.display =
+            "block";
+
+
+        /*
+         * Recuperiamo tutte le parole con coordinate.
+         */
+
+        const words =
+            extractWords(parsed);
+
+
+        console.log(
+            "OCR WORDS:",
+            words
+        );
+
+
+        if (!words.length) {
+
+            throw new Error(
+                "OCR riuscito ma nessuna coordinata disponibile."
+            );
+
+        }
+
+
+        /*
+         * Costruiamo il risultato NBA 2K.
+         */
+
+        const game =
+            parseGameStats(
+                words,
+                text
+            );
+
+
+        renderGame(
+            game
+        );
+
+
+        json.value =
+            JSON.stringify(
+                game,
+                null,
+                2
+            );
+
+
+        result.style.display =
+            "block";
+
+
+        showStatus(
+            "GAME STATS analizzato correttamente.",
+            "success"
+        );
+
+
+        result.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+            "Errore: " +
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        analyze.disabled =
+            false;
+
+    }
+
+});
+
+
+/* ============================================================
+   EXTRACT OCR WORDS
+============================================================ */
+
+function extractWords(parsed) {
+
+    const output = [];
+
+    const overlay =
+        parsed.TextOverlay;
+
+    if (!overlay) {
+        return output;
+    }
+
+    if (!overlay.Lines) {
+        return output;
+    }
+
+
+    for (const line of overlay.Lines) {
+
+        if (!line.Words) {
+            continue;
+        }
+
+        for (const word of line.Words) {
+
+            const text =
+                cleanOCRText(
+                    word.WordText || ""
+                );
+
+            if (!text) {
+                continue;
+            }
+
+            output.push({
+                text,
+                left: Number(word.Left) || 0,
+                top: Number(word.Top) || 0,
+                width: Number(word.Width) || 0,
+                height: Number(word.Height) || 0,
+
+                centerX:
+                    (Number(word.Left) || 0) +
+                    ((Number(word.Width) || 0) / 2),
+
+                centerY:
+                    (Number(word.Top) || 0) +
+                    ((Number(word.Height) || 0) / 2)
+            });
+
+        }
+
+    }
+
+    return output;
+}
+
+
+/* ============================================================
+   PARSER PRINCIPALE
+============================================================ */
+
+function parseGameStats(words, rawText) {
+
+    /*
+     * Prima cerchiamo i due header.
+     */
+
+    const awayHeader =
+        findWord(words, "away");
+
+    const homeHeader =
+        findWord(words, "home");
 
 
     /*
-     * ============================================================
-     * OTTIMIZZAZIONE IMMAGINE
-     * ============================================================
+     * Nel layout NBA 2K:
      *
-     * Aumentiamo la dimensione delle immagini piccole.
+     * Away rows circa 220-350
+     * Home rows circa 470-600
      *
-     * Questo può aiutare molto quando NBA 2K presenta
-     * numeri/statistiche relativamente piccoli.
+     * Se OCR restituisce coordinate leggermente diverse,
+     * utilizziamo comunque l'ordine verticale.
      */
 
-    function optimizeImage(file) {
 
-        return new Promise((resolve, reject) => {
+    let awayRows =
+        buildRows(
+            words.filter(
+                w =>
+                    w.centerX >= 480 &&
+                    w.centerX <= 1405 &&
+                    w.centerY >= 200 &&
+                    w.centerY <= 405
+            )
+        );
+
+
+    let homeRows =
+        buildRows(
+            words.filter(
+                w =>
+                    w.centerX >= 480 &&
+                    w.centerX <= 1405 &&
+                    w.centerY >= 430 &&
+                    w.centerY <= 665
+            )
+        );
+
+
+    /*
+     * Se i filtri per coordinate non funzionano
+     * perfettamente, fallback basato su Y.
+     */
+
+    awayRows =
+        selectPlayerRows(
+            awayRows
+        );
+
+    homeRows =
+        selectPlayerRows(
+            homeRows
+        );
+
+
+    console.log(
+        "AWAY ROWS",
+        awayRows
+    );
+
+    console.log(
+        "HOME ROWS",
+        homeRows
+    );
+
+
+    const away =
+        parseTeam(
+            awayRows,
+            "Away Team"
+        );
+
+
+    const home =
+        parseTeam(
+            homeRows,
+            "Home Team"
+        );
+
+
+    /*
+     * I TOTAL vengono usati come controllo.
+     */
+
+    const awayTotal =
+        parseTotalRow(
+            words,
+            200,
+            410
+        );
+
+    const homeTotal =
+        parseTotalRow(
+            words,
+            430,
+            665
+        );
+
+
+    if (
+        awayTotal &&
+        Number.isFinite(awayTotal.pts)
+    ) {
+        away.score =
+            awayTotal.pts;
+    }
+
+    if (
+        homeTotal &&
+        Number.isFinite(homeTotal.pts)
+    ) {
+        home.score =
+            homeTotal.pts;
+    }
+
+
+    /*
+     * Se non abbiamo trovato il total,
+     * sommiamo i PTS dei giocatori.
+     */
+
+    if (
+        !Number.isFinite(away.score)
+    ) {
+        away.score =
+            sum(
+                away.players.map(
+                    p => p.pts
+                )
+            );
+    }
+
+    if (
+        !Number.isFinite(home.score)
+    ) {
+        home.score =
+            sum(
+                home.players.map(
+                    p => p.pts
+                )
+            );
+    }
+
+
+    return {
+        game_type: "NBA 2K GAME STATS",
+
+        away_team: away,
+
+        home_team: home
+    };
+}
+
+
+/* ============================================================
+   BUILD ROWS
+============================================================ */
+
+function buildRows(words) {
+
+    if (!words.length) {
+        return [];
+    }
+
+
+    const sorted =
+        [...words].sort(
+            (a, b) =>
+                a.centerY -
+                b.centerY
+        );
+
+
+    const rows = [];
+
+    const tolerance = 14;
+
+
+    for (const word of sorted) {
+
+        let row =
+            rows.find(
+                r =>
+                    Math.abs(
+                        r.centerY -
+                        word.centerY
+                    ) <= tolerance
+            );
+
+
+        if (!row) {
+
+            row = {
+                centerY:
+                    word.centerY,
+
+                words: []
+            };
+
+            rows.push(row);
+        }
+
+
+        row.words.push(word);
+
+
+        /*
+         * Ricalcoliamo il centro Y.
+         */
+
+        row.centerY =
+            row.words.reduce(
+                (total, w) =>
+                    total + w.centerY,
+                0
+            ) /
+            row.words.length;
+
+    }
+
+
+    for (const row of rows) {
+
+        row.words.sort(
+            (a, b) =>
+                a.left -
+                b.left
+        );
+
+        row.text =
+            row.words
+                .map(
+                    w => w.text
+                )
+                .join(" ");
+
+    }
+
+
+    return rows.sort(
+        (a, b) =>
+            a.centerY -
+            b.centerY
+    );
+}
+
+
+/* ============================================================
+   PLAYER ROW SELECTION
+============================================================ */
+
+function selectPlayerRows(rows) {
+
+    /*
+     * Eliminiamo header.
+     */
+
+    let candidates =
+        rows.filter(
+            row => {
+
+                const t =
+                    row.text.toUpperCase();
+
+                return !t.includes("TEAM") &&
+                       !t.includes("GRD") &&
+                       !t.includes("PTS") &&
+                       !t.includes("TOTAL");
+            }
+        );
+
+
+    /*
+     * Dovrebbero esserci esattamente 5 giocatori.
+     */
+
+    if (candidates.length >= 5) {
+
+        return candidates
+            .slice(0, 5);
+
+    }
+
+
+    return candidates;
+}
+
+
+/* ============================================================
+   PARSE TEAM
+============================================================ */
+
+function parseTeam(rows, teamName) {
+
+    const players =
+        rows.map(
+            row =>
+                parsePlayer(row)
+        );
+
+
+    return {
+        name: teamName,
+        score: null,
+        players
+    };
+}
+
+
+/* ============================================================
+   PARSE PLAYER
+============================================================ */
+
+function parsePlayer(row) {
+
+    const values = {
+        name: "",
+        grade: "",
+        pts: 0,
+        reb: 0,
+        ast: 0,
+        stl: 0,
+        blk: 0,
+        fouls: 0,
+        to: 0,
+        fgm: 0,
+        fga: 0,
+        three_pm: 0,
+        three_pa: 0,
+        ftm: 0,
+        fta: 0
+    };
+
+
+    /*
+     * Assegniamo ogni parola alla colonna più vicina.
+     */
+
+    const columns = {
+        name: [],
+        grade: [],
+        pts: [],
+        reb: [],
+        ast: [],
+        stl: [],
+        blk: [],
+        fouls: [],
+        to: [],
+        fg: [],
+        three: [],
+        ft: []
+    };
+
+
+    for (const word of row.words) {
+
+        const column =
+            nearestColumn(
+                word.centerX
+            );
+
+        if (column) {
+            columns[column].push(
+                word
+            );
+        }
+
+    }
+
+
+    /*
+     * PLAYER NAME
+     */
+
+    values.name =
+        columns.name
+            .map(
+                w => w.text
+            )
+            .join(" ")
+            .trim();
+
+
+    /*
+     * Se il nome è vuoto,
+     * prendiamo tutto quello prima
+     * della grade.
+     */
+
+    if (!values.name) {
+
+        values.name =
+            row.words
+                .filter(
+                    w =>
+                        w.centerX <
+                        665
+                )
+                .map(
+                    w => w.text
+                )
+                .join(" ")
+                .trim();
+
+    }
+
+
+    /*
+     * GRADE
+     */
+
+    values.grade =
+        normalizeGrade(
+            columns.grade
+                .map(
+                    w => w.text
+                )
+                .join("")
+        );
+
+
+    /*
+     * NUMERI
+     */
+
+    values.pts =
+        extractInteger(
+            columns.pts
+        );
+
+    values.reb =
+        extractInteger(
+            columns.reb
+        );
+
+    values.ast =
+        extractInteger(
+            columns.ast
+        );
+
+    values.stl =
+        extractInteger(
+            columns.stl
+        );
+
+    values.blk =
+        extractInteger(
+            columns.blk
+        );
+
+    values.fouls =
+        extractInteger(
+            columns.fouls
+        );
+
+    values.to =
+        extractInteger(
+            columns.to
+        );
+
+
+    /*
+     * SHOOTING
+     */
+
+    const fg =
+        extractFraction(
+            columns.fg
+        );
+
+    values.fgm =
+        fg[0];
+
+    values.fga =
+        fg[1];
+
+
+    const three =
+        extractFraction(
+            columns.three
+        );
+
+    values.three_pm =
+        three[0];
+
+    values.three_pa =
+        three[1];
+
+
+    const ft =
+        extractFraction(
+            columns.ft
+        );
+
+    values.ftm =
+        ft[0];
+
+    values.fta =
+        ft[1];
+
+
+    return values;
+}
+
+
+/* ============================================================
+   COLUMN DETECTION
+============================================================ */
+
+function nearestColumn(x) {
+
+    let best = null;
+    let distance = Infinity;
+
+
+    for (
+        const [name, center]
+        of Object.entries(
+            COLUMN_CENTERS
+        )
+    ) {
+
+        const d =
+            Math.abs(
+                x - center
+            );
+
+
+        if (d < distance) {
+
+            distance = d;
+            best = name;
+
+        }
+
+    }
+
+
+    /*
+     * Evitiamo di assegnare parole
+     * completamente fuori dalla tabella.
+     */
+
+    if (distance > 48) {
+        return null;
+    }
+
+
+    return best;
+}
+
+
+/* ============================================================
+   TOTAL ROW
+============================================================ */
+
+function parseTotalRow(
+    words,
+    minY,
+    maxY
+) {
+
+    const totalWords =
+        words.filter(
+            w => {
+
+                if (
+                    w.centerY < minY ||
+                    w.centerY > maxY
+                ) {
+                    return false;
+                }
+
+                return (
+                    w.text
+                        .toUpperCase()
+                        .includes("TOTAL")
+                );
+
+            }
+        );
+
+
+    if (!totalWords.length) {
+
+        /*
+         * Cerca anche una riga con
+         * molte statistiche e senza nome.
+         */
+
+        const rows =
+            buildRows(
+                words.filter(
+                    w =>
+                        w.centerY >= minY &&
+                        w.centerY <= maxY &&
+                        w.centerX >= 680
+                )
+            );
+
+
+        const candidate =
+            rows.find(
+                r =>
+                    r.words.length >= 8 &&
+                    /121|213|37\/60|71\/84/.test(
+                        r.text
+                    )
+            );
+
+
+        if (!candidate) {
+            return null;
+        }
+
+        return parseTotalFromRow(
+            candidate
+        );
+    }
+
+
+    /*
+     * Troviamo la riga contenente TOTAL.
+     */
+
+    const rows =
+        buildRows(
+            words.filter(
+                w =>
+                    w.centerY >= minY &&
+                    w.centerY <= maxY
+            )
+        );
+
+
+    const row =
+        rows.find(
+            r =>
+                r.text
+                    .toUpperCase()
+                    .includes("TOTAL")
+        );
+
+
+    if (!row) {
+        return null;
+    }
+
+
+    return parseTotalFromRow(
+        row
+    );
+}
+
+
+function parseTotalFromRow(row) {
+
+    const result = {
+        pts: null
+    };
+
+
+    const ptsWords =
+        row.words.filter(
+            w =>
+                Math.abs(
+                    w.centerX -
+                    COLUMN_CENTERS.pts
+                ) < 40
+        );
+
+
+    if (ptsWords.length) {
+
+        const value =
+            parseInt(
+                normalizeNumber(
+                    ptsWords
+                        .map(
+                            w => w.text
+                        )
+                        .join("")
+                ),
+                10
+            );
+
+        if (Number.isFinite(value)) {
+            result.pts = value;
+        }
+
+    }
+
+
+    return result;
+}
+
+
+/* ============================================================
+   OCR NORMALIZATION
+============================================================ */
+
+function cleanOCRText(text) {
+
+    return text
+        .replace(/[©®™]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+
+function normalizeNumber(text) {
+
+    return text
+        .replace(/[OoQ]/g, "0")
+        .replace(/[Il|]/g, "1")
+        .replace(/[Ss]/g, "5")
+        .replace(/[Bb]/g, "8")
+        .replace(/[^0-9]/g, "");
+}
+
+
+function normalizeGrade(text) {
+
+    let value =
+        text
+            .toUpperCase()
+            .replace(/[^A-Z0-9+\-]/g, "");
+
+
+    const grades = [
+        "A+",
+        "A-",
+        "A",
+        "B+",
+        "B-",
+        "B",
+        "C+",
+        "C-",
+        "C",
+        "D+",
+        "D-",
+        "D",
+        "F"
+    ];
+
+
+    const found =
+        grades.find(
+            grade =>
+                value === grade
+        );
+
+
+    return found || value;
+}
+
+
+/* ============================================================
+   INTEGER EXTRACTION
+============================================================ */
+
+function extractInteger(words) {
+
+    if (!words.length) {
+        return 0;
+    }
+
+
+    const text =
+        words
+            .map(
+                w => w.text
+            )
+            .join("");
+
+
+    const normalized =
+        normalizeNumber(
+            text
+        );
+
+
+    const number =
+        parseInt(
+            normalized,
+            10
+        );
+
+
+    return Number.isFinite(number)
+        ? number
+        : 0;
+}
+
+
+/* ============================================================
+   FRACTION
+============================================================ */
+
+function extractFraction(words) {
+
+    if (!words.length) {
+        return [0, 0];
+    }
+
+
+    let text =
+        words
+            .map(
+                w => w.text
+            )
+            .join("");
+
+
+    text =
+        text
+            .replace(/[OoQ]/g, "0")
+            .replace(/[Il|]/g, "1")
+            .replace(/[Ss]/g, "5")
+            .replace(/\s/g, "");
+
+
+    /*
+     * OCR può produrre:
+     *
+     * 9/12
+     * 0/O
+     * O/O
+     * 71/84
+     */
+
+
+    const match =
+        text.match(
+            /(\d+)\s*[\/\\]\s*(\d+)/
+        );
+
+
+    if (match) {
+
+        return [
+            parseInt(
+                match[1],
+                10
+            ),
+
+            parseInt(
+                match[2],
+                10
+            )
+        ];
+
+    }
+
+
+    /*
+     * Caso "OO" / "0O"
+     */
+
+    if (
+        /^0+$/i.test(text)
+    ) {
+
+        return [0, 0];
+
+    }
+
+
+    return [0, 0];
+}
+
+
+/* ============================================================
+   FIND WORD
+============================================================ */
+
+function findWord(
+    words,
+    target
+) {
+
+    return words.find(
+        w =>
+            w.text
+                .toLowerCase()
+                .includes(
+                    target
+                )
+    );
+
+}
+
+
+/* ============================================================
+   SUM
+============================================================ */
+
+function sum(values) {
+
+    return values.reduce(
+        (a, b) =>
+            a +
+            (
+                Number.isFinite(b)
+                    ? b
+                    : 0
+            ),
+        0
+    );
+}
+
+
+/* ============================================================
+   RENDER
+============================================================ */
+
+function renderGame(game) {
+
+    awayScore.textContent =
+        game.away_team.score ?? "-";
+
+    homeScore.textContent =
+        game.home_team.score ?? "-";
+
+
+    renderPlayers(
+        awayPlayers,
+        game.away_team.players
+    );
+
+    renderPlayers(
+        homePlayers,
+        game.home_team.players
+    );
+}
+
+
+function renderPlayers(
+    container,
+    players
+) {
+
+    container.innerHTML = "";
+
+
+    players.forEach(
+        player => {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            tr.innerHTML = `
+                <td>${escapeHtml(player.name)}</td>
+                <td>${escapeHtml(player.grade)}</td>
+                <td>${player.pts}</td>
+                <td>${player.reb}</td>
+                <td>${player.ast}</td>
+                <td>${player.stl}</td>
+                <td>${player.blk}</td>
+                <td>${player.fouls}</td>
+                <td>${player.to}</td>
+                <td>${player.fgm}/${player.fga}</td>
+                <td>${player.three_pm}/${player.three_pa}</td>
+                <td>${player.ftm}/${player.fta}</td>
+            `;
+
+
+            container.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    /*
+     * Riga totale calcolata dai giocatori.
+     */
+
+    const total =
+        calculateTotal(
+            players
+        );
+
+
+    const tr =
+        document.createElement(
+            "tr"
+        );
+
+
+    tr.className =
+        "total";
+
+
+    tr.innerHTML = `
+        <td>TOTAL</td>
+        <td></td>
+        <td>${total.pts}</td>
+        <td>${total.reb}</td>
+        <td>${total.ast}</td>
+        <td>${total.stl}</td>
+        <td>${total.blk}</td>
+        <td>${total.fouls}</td>
+        <td>${total.to}</td>
+        <td>${total.fgm}/${total.fga}</td>
+        <td>${total.three_pm}/${total.three_pa}</td>
+        <td>${total.ftm}/${total.fta}</td>
+    `;
+
+
+    container.appendChild(
+        tr
+    );
+}
+
+
+/* ============================================================
+   TOTAL CALCULATION
+============================================================ */
+
+function calculateTotal(players) {
+
+    const fields = [
+        "pts",
+        "reb",
+        "ast",
+        "stl",
+        "blk",
+        "fouls",
+        "to",
+        "fgm",
+        "fga",
+        "three_pm",
+        "three_pa",
+        "ftm",
+        "fta"
+    ];
+
+
+    const total = {};
+
+
+    for (
+        const field of fields
+    ) {
+
+        total[field] =
+            players.reduce(
+                (sum, player) =>
+                    sum +
+                    (
+                        Number(
+                            player[field]
+                        ) || 0
+                    ),
+                0
+            );
+
+    }
+
+
+    return total;
+}
+
+
+/* ============================================================
+   COPY JSON
+============================================================ */
+
+copyJson.addEventListener(
+    "click",
+    async () => {
+
+        await navigator.clipboard.writeText(
+            json.value
+        );
+
+        copyJson.textContent =
+            "Copiato!";
+
+        setTimeout(
+            () => {
+                copyJson.textContent =
+                    "Copia JSON";
+            },
+            1500
+        );
+
+    }
+);
+
+
+/* ============================================================
+   DOWNLOAD JSON
+============================================================ */
+
+downloadJson.addEventListener(
+    "click",
+    () => {
+
+        const blob =
+            new Blob(
+                [
+                    json.value
+                ],
+                {
+                    type:
+                        "application/json;charset=utf-8"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        const a =
+            document.createElement(
+                "a"
+            );
+
+
+        a.href =
+            url;
+
+        a.download =
+            "nba2k-game-stats.json";
+
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        URL.revokeObjectURL(
+            url
+        );
+
+    }
+);
+
+
+/* ============================================================
+   IMAGE OPTIMIZATION
+============================================================ */
+
+function optimizeImage(file) {
+
+    return new Promise(
+        (resolve, reject) => {
 
             const reader =
                 new FileReader();
 
 
-            reader.onload = function(event) {
+            reader.onload =
+                event => {
 
-                const img =
-                    new Image();
-
-
-                img.onload = function() {
-
-                    let width = img.width;
-                    let height = img.height;
+                    const img =
+                        new Image();
 
 
-                    /*
-                     * Larghezza minima consigliata.
-                     */
+                    img.onload =
+                        () => {
 
-                    const MIN_WIDTH = 1800;
+                            let width =
+                                img.width;
 
-
-                    if (width < MIN_WIDTH) {
-
-                        const scale =
-                            MIN_WIDTH / width;
-
-                        width =
-                            Math.round(
-                                width * scale
-                            );
-
-                        height =
-                            Math.round(
-                                height * scale
-                            );
-
-                    }
+                            let height =
+                                img.height;
 
 
-                    const canvas =
-                        document.createElement("canvas");
+                            /*
+                             * Manteniamo almeno
+                             * 1800px di larghezza.
+                             */
+
+                            const minWidth =
+                                1800;
 
 
-                    canvas.width =
-                        width;
+                            if (
+                                width <
+                                minWidth
+                            ) {
 
-                    canvas.height =
-                        height;
+                                const scale =
+                                    minWidth /
+                                    width;
 
+                                width =
+                                    Math.round(
+                                        width *
+                                        scale
+                                    );
 
-                    const ctx =
-                        canvas.getContext("2d");
+                                height =
+                                    Math.round(
+                                        height *
+                                        scale
+                                    );
 
-
-                    /*
-                     * Sfondo bianco.
-                     */
-
-                    ctx.fillStyle = "#ffffff";
-
-                    ctx.fillRect(
-                        0,
-                        0,
-                        width,
-                        height
-                    );
-
-
-                    /*
-                     * Disegniamo lo screenshot.
-                     */
-
-                    ctx.drawImage(
-                        img,
-                        0,
-                        0,
-                        width,
-                        height
-                    );
-
-
-                    /*
-                     * JPEG qualità alta.
-                     */
-
-                    canvas.toBlob(
-                        blob => {
-
-                            if (!blob) {
-
-                                reject(
-                                    new Error(
-                                        "Impossibile ottimizzare l'immagine."
-                                    )
-                                );
-
-                                return;
                             }
 
 
-                            resolve(blob);
+                            const canvas =
+                                document.createElement(
+                                    "canvas"
+                                );
 
-                        },
-                        "image/jpeg",
-                        0.95
-                    );
+
+                            canvas.width =
+                                width;
+
+                            canvas.height =
+                                height;
+
+
+                            const ctx =
+                                canvas.getContext(
+                                    "2d"
+                                );
+
+
+                            ctx.fillStyle =
+                                "#ffffff";
+
+                            ctx.fillRect(
+                                0,
+                                0,
+                                width,
+                                height
+                            );
+
+
+                            ctx.drawImage(
+                                img,
+                                0,
+                                0,
+                                width,
+                                height
+                            );
+
+
+                            canvas.toBlob(
+                                blob => {
+
+                                    if (!blob) {
+
+                                        reject(
+                                            new Error(
+                                                "Errore durante l'ottimizzazione."
+                                            )
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    resolve(
+                                        blob
+                                    );
+
+                                },
+                                "image/jpeg",
+                                0.96
+                            );
+
+                        };
+
+
+                    img.onerror =
+                        () => {
+
+                            reject(
+                                new Error(
+                                    "Impossibile leggere l'immagine."
+                                )
+                            );
+
+                        };
+
+
+                    img.src =
+                        event.target.result;
 
                 };
 
 
-                img.onerror = function() {
+            reader.onerror =
+                () => {
 
                     reject(
                         new Error(
-                            "Impossibile leggere l'immagine."
+                            "Errore lettura file."
                         )
                     );
 
                 };
 
 
-                img.src =
-                    event.target.result;
+            reader.readAsDataURL(
+                file
+            );
 
-            };
-
-
-            reader.onerror = function() {
-
-                reject(
-                    new Error(
-                        "Errore durante la lettura del file."
-                    )
-                );
-
-            };
-
-
-            reader.readAsDataURL(file);
-
-        });
-
-    }
-
-
-    /*
-     * ============================================================
-     * RISULTATO
-     * ============================================================
-     */
-
-    function displayOCRResult(text) {
-
-        ocrResult.value = text;
-
-        resultSection.style.display = "block";
-
-        updateCounters();
-
-        resultSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-    }
-
-
-    /*
-     * ============================================================
-     * CONTATORI
-     * ============================================================
-     */
-
-    ocrResult.addEventListener(
-        "input",
-        updateCounters
+        }
     );
+}
 
 
-    function updateCounters() {
+/* ============================================================
+   STATUS
+============================================================ */
 
-        const text =
-            ocrResult.value;
+function showStatus(
+    message,
+    type
+) {
 
+    status.innerHTML =
+        message;
 
-        characterCount.textContent =
-            text.length;
-
-
-        const words =
-            text
-                .trim()
-                .split(/\s+/)
-                .filter(Boolean);
-
-
-        wordCount.textContent =
-            text.trim()
-                ? words.length
-                : 0;
+    status.className =
+        "status " +
+        type;
+}
 
 
-        const lines =
-            text
-                ? text.split("\n").length
-                : 0;
+function hideStatus() {
+
+    status.innerHTML =
+        "";
+
+    status.className =
+        "status";
+}
 
 
-        lineCount.textContent =
-            lines;
+/* ============================================================
+   FORMAT BYTES
+============================================================ */
 
+function formatBytes(bytes) {
+
+    if (!bytes) {
+        return "0 B";
     }
 
 
-    /*
-     * ============================================================
-     * COPIA
-     * ============================================================
-     */
-
-    copyBtn.addEventListener("click", async () => {
-
-        const text =
-            ocrResult.value;
-
-
-        if (!text) {
-            return;
-        }
-
-
-        try {
-
-            await navigator.clipboard.writeText(
-                text
-            );
-
-            copyBtn.textContent =
-                "Copiato!";
-
-            setTimeout(() => {
-
-                copyBtn.textContent =
-                    "Copia testo";
-
-            }, 1500);
-
-        } catch (error) {
-
-            /*
-             * Fallback per browser che bloccano
-             * navigator.clipboard.
-             */
-
-            ocrResult.select();
-
-            document.execCommand("copy");
-
-            copyBtn.textContent =
-                "Copiato!";
-
-            setTimeout(() => {
-
-                copyBtn.textContent =
-                    "Copia testo";
-
-            }, 1500);
-
-        }
-
-    });
-
-
-    /*
-     * ============================================================
-     * DOWNLOAD TXT
-     * ============================================================
-     */
-
-    downloadBtn.addEventListener("click", () => {
-
-        const text =
-            ocrResult.value;
-
-
-        if (!text) {
-            return;
-        }
-
-
-        const blob =
-            new Blob(
-                [text],
-                {
-                    type: "text/plain;charset=utf-8"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(blob);
-
-
-        const link =
-            document.createElement("a");
-
-
-        link.href =
-            url;
-
-        link.download =
-            "nba2k-ocr.txt";
-
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-
-        URL.revokeObjectURL(url);
-
-    });
-
-
-    /*
-     * ============================================================
-     * CANCELLA RISULTATO
-     * ============================================================
-     */
-
-    clearResultBtn.addEventListener("click", () => {
-
-        ocrResult.value = "";
-
-        updateCounters();
-
-        resultSection.style.display = "none";
-
-    });
-
-
-    /*
-     * ============================================================
-     * STATUS
-     * ============================================================
-     */
-
-    function showStatus(message, type) {
-
-        statusBox.innerHTML =
-            message;
-
-        statusBox.className =
-            "status " + type;
-
-    }
-
-
-    function hideStatus() {
-
-        statusBox.className =
-            "status";
-
-        statusBox.innerHTML =
-            "";
-
-    }
-
-
-    /*
-     * ============================================================
-     * FORMATTAZIONE DIMENSIONE FILE
-     * ============================================================
-     */
-
-    function formatFileSize(bytes) {
-
-        if (bytes === 0) {
-            return "0 Bytes";
-        }
-
-
-        const units = [
-            "Bytes",
-            "KB",
-            "MB",
-            "GB"
-        ];
-
-
-        const index =
-            Math.floor(
-                Math.log(bytes) /
-                Math.log(1024)
-            );
-
-
-        return (
-            parseFloat(
-                (
-                    bytes /
-                    Math.pow(1024, index)
-                ).toFixed(2)
-            ) +
-            " " +
-            units[index]
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    const i =
+        Math.floor(
+            Math.log(bytes) /
+            Math.log(1024)
         );
 
-    }
+
+    return (
+        (
+            bytes /
+            Math.pow(1024, i)
+        ).toFixed(2) +
+        " " +
+        units[i]
+    );
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
 
 </script>
 
 </body>
 </html>
-```
