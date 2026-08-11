@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -48,36 +49,6 @@ h1 {
     font-size: 20px;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 13px;
-    color: #aeb5c2;
-}
-
-input[type="password"] {
-    width: 100%;
-    padding: 13px;
-    border-radius: 8px;
-    border: 1px solid #363c48;
-    background: #0d1015;
-    color: white;
-    outline: none;
-}
-
-input[type="password"]:focus {
-    border-color: #777f8d;
-}
-
-.api-row {
-    display: flex;
-    gap: 10px;
-}
-
-.api-row input {
-    flex: 1;
-}
-
 button {
     border: 0;
     border-radius: 8px;
@@ -99,11 +70,6 @@ button:disabled {
 
 .secondary {
     background: #2a303b;
-    color: white;
-}
-
-.danger {
-    background: #612a30;
     color: white;
 }
 
@@ -303,10 +269,6 @@ td:not(:first-child) {
         padding: 22px 12px;
     }
 
-    .api-row {
-        flex-direction: column;
-    }
-
     h1 {
         font-size: 26px;
     }
@@ -321,59 +283,16 @@ td:not(:first-child) {
     <h1>NBA 2K27 Tracker</h1>
 
     <div class="subtitle">
-        GAME STATS OCR — OCR.space
+        GAME STATS — Gemini Vision OCR
     </div>
-
-
-    <!-- API KEY -->
-    <div class="card">
-
-        <h2>OCR.space</h2>
-
-        <label for="apiKey">
-            API Key
-        </label>
-
-        <div class="api-row">
-
-            <input
-                id="apiKey"
-                type="password"
-                placeholder="Inserisci la API key OCR.space"
-            >
-
-            <button
-                id="saveKey"
-                class="secondary"
-            >
-                Salva
-            </button>
-
-            <button
-                id="deleteKey"
-                class="danger"
-            >
-                Elimina
-            </button>
-
-        </div>
-
-        <div class="small">
-            La chiave viene salvata solamente nel localStorage del browser.
-        </div>
-
-    </div>
-
 
     <!-- UPLOAD -->
+
     <div class="card">
 
         <h2>Carica partita</h2>
 
-        <div
-            id="upload"
-            class="upload"
-        >
+        <div id="upload" class="upload">
 
             <div class="upload-icon">
                 📷
@@ -395,11 +314,7 @@ td:not(:first-child) {
             accept="image/png,image/jpeg,image/jpg,image/webp"
         >
 
-
-        <div
-            id="preview"
-            class="preview"
-        >
+        <div id="preview" class="preview">
 
             <img
                 id="previewImage"
@@ -408,18 +323,13 @@ td:not(:first-child) {
 
             <div class="file-info">
 
-                <span id="fileName">
-                    -
-                </span>
+                <span id="fileName">-</span>
 
-                <span id="fileSize">
-                    -
-                </span>
+                <span id="fileSize">-</span>
 
             </div>
 
         </div>
-
 
         <div class="actions">
 
@@ -441,32 +351,27 @@ td:not(:first-child) {
 
         </div>
 
-
-        <div
-            id="status"
-            class="status"
-        ></div>
+        <div id="status" class="status"></div>
 
     </div>
 
 
-    <!-- STRUCTURED RESULT -->
-    <div
-        id="result"
-        class="card result"
-    >
+    <!-- RESULT -->
 
-        <h2>
-            Statistiche riconosciute
-        </h2>
+    <div id="result" class="card result">
 
+        <h2>Statistiche riconosciute</h2>
 
         <!-- AWAY -->
+
         <div class="team">
 
             <div class="team-header">
 
-                <div class="team-name">
+                <div
+                    id="awayTeamName"
+                    class="team-name"
+                >
                     Away Team
                 </div>
 
@@ -478,7 +383,6 @@ td:not(:first-child) {
                 </div>
 
             </div>
-
 
             <div class="table-wrap">
 
@@ -513,11 +417,15 @@ td:not(:first-child) {
 
 
         <!-- HOME -->
+
         <div class="team">
 
             <div class="team-header">
 
-                <div class="team-name">
+                <div
+                    id="homeTeamName"
+                    class="team-name"
+                >
                     Home Team
                 </div>
 
@@ -529,7 +437,6 @@ td:not(:first-child) {
                 </div>
 
             </div>
-
 
             <div class="table-wrap">
 
@@ -564,9 +471,8 @@ td:not(:first-child) {
 
 
         <!-- JSON -->
-        <h2>
-            JSON
-        </h2>
+
+        <h2>JSON</h2>
 
         <textarea
             id="json"
@@ -595,15 +501,14 @@ td:not(:first-child) {
     </div>
 
 
-    <!-- RAW OCR -->
+    <!-- RAW GEMINI -->
+
     <div
         id="rawSection"
         class="card result"
     >
 
-        <h2>
-            OCR grezzo
-        </h2>
+        <h2>Risposta Gemini</h2>
 
         <textarea
             id="raw"
@@ -619,56 +524,28 @@ td:not(:first-child) {
 <script>
 
 /* ============================================================
-   CONFIG
+   CONFIGURAZIONE
 ============================================================ */
 
-const OCR_URL =
-    "https://api.ocr.space/parse/image";
-
-const OCR_ENGINE =
-    "2";
-
-const OCR_LANGUAGE =
-    "eng";
-
-
 /*
- * Colonne della tabella NBA 2K.
+ * IMPORTANTE:
  *
- * Coordinate approssimative sullo screenshot originale
- * 1521x855.
+ * Qui NON va inserita la Gemini API key.
  *
- * L'OCR ci restituisce Left/Top per ogni parola.
+ * La chiave sarà salvata come SECRET
+ * nel Cloudflare Worker.
+ *
+ * Quando avremo creato il Worker,
+ * sostituisci questo URL con quello reale.
  */
 
-const COLUMN_CENTERS = {
-    name: 525,
-    grade: 696,
-    pts: 756,
-    reb: 816,
-    ast: 877,
-    stl: 938,
-    blk: 997,
-    fouls: 1056,
-    to: 1113,
-    fg: 1189,
-    three: 1280,
-    ft: 1368
-};
+const WORKER_URL =
+    "https://TUO-WORKER.workers.dev/ocr";
 
 
 /* ============================================================
    DOM
 ============================================================ */
-
-const apiKey =
-    document.getElementById("apiKey");
-
-const saveKey =
-    document.getElementById("saveKey");
-
-const deleteKey =
-    document.getElementById("deleteKey");
 
 const upload =
     document.getElementById("upload");
@@ -721,6 +598,12 @@ const awayScore =
 const homeScore =
     document.getElementById("homeScore");
 
+const awayTeamName =
+    document.getElementById("awayTeamName");
+
+const homeTeamName =
+    document.getElementById("homeTeamName");
+
 const copyJson =
     document.getElementById("copyJson");
 
@@ -732,56 +615,13 @@ let selectedFile = null;
 
 
 /* ============================================================
-   API KEY
-============================================================ */
-
-const savedKey =
-    localStorage.getItem("ocr_space_api_key");
-
-if (savedKey) {
-    apiKey.value = savedKey;
-}
-
-
-saveKey.addEventListener("click", () => {
-
-    const value =
-        apiKey.value.trim();
-
-    if (!value) {
-        alert("Inserisci una API key.");
-        return;
-    }
-
-    localStorage.setItem(
-        "ocr_space_api_key",
-        value
-    );
-
-    alert("API key salvata.");
-
-});
-
-
-deleteKey.addEventListener("click", () => {
-
-    localStorage.removeItem(
-        "ocr_space_api_key"
-    );
-
-    apiKey.value = "";
-
-    alert("API key eliminata.");
-
-});
-
-
-/* ============================================================
    UPLOAD
 ============================================================ */
 
 upload.addEventListener("click", () => {
+
     fileInput.click();
+
 });
 
 
@@ -879,6 +719,7 @@ function selectFile(file) {
     };
 
     reader.readAsDataURL(file);
+
 }
 
 
@@ -909,6 +750,8 @@ remove.addEventListener("click", () => {
     rawSection.style.display =
         "none";
 
+    hideStatus();
+
 });
 
 
@@ -922,13 +765,13 @@ analyze.addEventListener("click", async () => {
         return;
     }
 
-    const key =
-        apiKey.value.trim();
-
-    if (!key) {
+    if (
+        !WORKER_URL ||
+        WORKER_URL.includes("TUO-WORKER")
+    ) {
 
         showStatus(
-            "Inserisci la API key OCR.space.",
+            "Devi prima configurare WORKER_URL.",
             "error"
         );
 
@@ -938,169 +781,133 @@ analyze.addEventListener("click", async () => {
     analyze.disabled = true;
 
     showStatus(
-        '<span class="spinner"></span> Lettura GAME STATS in corso...',
+        '<span class="spinner"></span> Gemini sta analizzando il GAME STATS...',
         "loading"
     );
 
     try {
 
-        const optimized =
-            await optimizeImage(
+        /*
+         * Convertiamo l'immagine in Base64.
+         */
+
+        const base64 =
+            await fileToBase64(
                 selectedFile
             );
 
-        const formData =
-            new FormData();
-
-        formData.append(
-            "apikey",
-            key
-        );
-
-        formData.append(
-            "language",
-            OCR_LANGUAGE
-        );
-
-        formData.append(
-            "OCREngine",
-            OCR_ENGINE
-        );
 
         /*
-         * Fondamentale:
-         * restituisce le coordinate delle parole.
+         * Mandiamo lo screenshot
+         * al Cloudflare Worker.
          */
-
-        formData.append(
-            "isOverlayRequired",
-            "true"
-        );
-
-        formData.append(
-            "scale",
-            "true"
-        );
-
-        formData.append(
-            "isTable",
-            "true"
-        );
-
-        formData.append(
-            "file",
-            optimized,
-            "nba2k.jpg"
-        );
-
 
         const response =
             await fetch(
-                OCR_URL,
+                WORKER_URL,
                 {
                     method: "POST",
-                    body: formData
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        image: base64,
+
+                        mimeType:
+                            selectedFile.type
+
+                    })
                 }
             );
 
 
-        if (!response.ok) {
-
-            throw new Error(
-                "Errore HTTP " +
-                response.status
-            );
-
-        }
-
+        /*
+         * Proviamo a leggere
+         * sempre la risposta JSON.
+         */
 
         const data =
             await response.json();
 
 
-        if (data.IsErroredOnProcessing) {
-
-            let message =
-                "Errore OCR.space.";
-
-            if (Array.isArray(data.ErrorMessage)) {
-                message =
-                    data.ErrorMessage.join("\n");
-            } else if (data.ErrorMessage) {
-                message =
-                    data.ErrorMessage;
-            }
-
-            throw new Error(message);
-        }
-
-
-        if (!data.ParsedResults?.length) {
+        if (!response.ok) {
 
             throw new Error(
-                "OCR.space non ha restituito risultati."
+                data.error ||
+                data.message ||
+                "Errore del server OCR."
             );
 
         }
 
 
-        const parsed =
-            data.ParsedResults[0];
+        /*
+         * Il Worker deve restituire:
+         *
+         * {
+         *   success: true,
+         *   data: {...},
+         *   raw: "..."
+         * }
+         */
+
+        const game =
+            data.data;
 
 
-        const text =
-            parsed.ParsedText || "";
+        if (!game) {
 
+            throw new Error(
+                "Gemini non ha restituito dati validi."
+            );
+
+        }
+
+
+        /*
+         * Mostriamo la risposta grezza
+         * per poter verificare eventuali errori.
+         */
 
         raw.value =
-            text;
+            data.raw
+                ? data.raw
+                : JSON.stringify(
+                    game,
+                    null,
+                    2
+                );
 
         rawSection.style.display =
             "block";
 
 
         /*
-         * Recuperiamo tutte le parole con coordinate.
+         * Normalizzazione.
          */
 
-        const words =
-            extractWords(parsed);
-
-
-        console.log(
-            "OCR WORDS:",
-            words
-        );
-
-
-        if (!words.length) {
-
-            throw new Error(
-                "OCR riuscito ma nessuna coordinata disponibile."
+        const normalized =
+            normalizeGame(
+                game
             );
-
-        }
 
 
         /*
-         * Costruiamo il risultato NBA 2K.
+         * Render.
          */
 
-        const game =
-            parseGameStats(
-                words,
-                text
-            );
-
-
         renderGame(
-            game
+            normalized
         );
 
 
         json.value =
             JSON.stringify(
-                game,
+                normalized,
                 null,
                 2
             );
@@ -1111,7 +918,7 @@ analyze.addEventListener("click", async () => {
 
 
         showStatus(
-            "GAME STATS analizzato correttamente.",
+            "GAME STATS analizzato correttamente da Gemini.",
             "success"
         );
 
@@ -1124,7 +931,10 @@ analyze.addEventListener("click", async () => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "GEMINI OCR ERROR:",
+            error
+        );
 
         showStatus(
             "Errore: " +
@@ -1143,1002 +953,255 @@ analyze.addEventListener("click", async () => {
 
 
 /* ============================================================
-   EXTRACT OCR WORDS
+   FILE → BASE64
 ============================================================ */
 
-function extractWords(parsed) {
+function fileToBase64(file) {
 
-    const output = [];
+    return new Promise(
+        (resolve, reject) => {
 
-    const overlay =
-        parsed.TextOverlay;
+            const reader =
+                new FileReader();
 
-    if (!overlay) {
-        return output;
-    }
+            reader.onload =
+                () => {
 
-    if (!overlay.Lines) {
-        return output;
-    }
+                    const result =
+                        reader.result;
 
+                    /*
+                     * Rimuoviamo:
+                     *
+                     * data:image/png;base64,
+                     */
 
-    for (const line of overlay.Lines) {
+                    const base64 =
+                        String(result)
+                            .split(",")[1];
 
-        if (!line.Words) {
-            continue;
-        }
+                    resolve(base64);
 
-        for (const word of line.Words) {
+                };
 
-            const text =
-                cleanOCRText(
-                    word.WordText || ""
-                );
+            reader.onerror =
+                () => {
 
-            if (!text) {
-                continue;
-            }
+                    reject(
+                        new Error(
+                            "Impossibile leggere l'immagine."
+                        )
+                    );
 
-            output.push({
-                text,
-                left: Number(word.Left) || 0,
-                top: Number(word.Top) || 0,
-                width: Number(word.Width) || 0,
-                height: Number(word.Height) || 0,
+                };
 
-                centerX:
-                    (Number(word.Left) || 0) +
-                    ((Number(word.Width) || 0) / 2),
-
-                centerY:
-                    (Number(word.Top) || 0) +
-                    ((Number(word.Height) || 0) / 2)
-            });
+            reader.readAsDataURL(file);
 
         }
+    );
 
-    }
-
-    return output;
 }
 
 
 /* ============================================================
-   PARSER PRINCIPALE
+   NORMALIZE GAME
 ============================================================ */
 
-function parseGameStats(words, rawText) {
+function normalizeGame(game) {
 
-    /*
-     * Prima cerchiamo i due header.
-     */
+    const normalized = {
 
-    const awayHeader =
-        findWord(words, "away");
+        game_type:
+            "NBA 2K GAME STATS",
 
-    const homeHeader =
-        findWord(words, "home");
+        away_team:
+            normalizeTeam(
+                game.away_team ||
+                game.away ||
+                {}
+            ),
 
-
-    /*
-     * Nel layout NBA 2K:
-     *
-     * Away rows circa 220-350
-     * Home rows circa 470-600
-     *
-     * Se OCR restituisce coordinate leggermente diverse,
-     * utilizziamo comunque l'ordine verticale.
-     */
-
-
-    let awayRows =
-        buildRows(
-            words.filter(
-                w =>
-                    w.centerX >= 480 &&
-                    w.centerX <= 1405 &&
-                    w.centerY >= 200 &&
-                    w.centerY <= 405
+        home_team:
+            normalizeTeam(
+                game.home_team ||
+                game.home ||
+                {}
             )
-        );
 
-
-    let homeRows =
-        buildRows(
-            words.filter(
-                w =>
-                    w.centerX >= 480 &&
-                    w.centerX <= 1405 &&
-                    w.centerY >= 430 &&
-                    w.centerY <= 665
-            )
-        );
-
-
-    /*
-     * Se i filtri per coordinate non funzionano
-     * perfettamente, fallback basato su Y.
-     */
-
-    awayRows =
-        selectPlayerRows(
-            awayRows
-        );
-
-    homeRows =
-        selectPlayerRows(
-            homeRows
-        );
-
-
-    console.log(
-        "AWAY ROWS",
-        awayRows
-    );
-
-    console.log(
-        "HOME ROWS",
-        homeRows
-    );
-
-
-    const away =
-        parseTeam(
-            awayRows,
-            "Away Team"
-        );
-
-
-    const home =
-        parseTeam(
-            homeRows,
-            "Home Team"
-        );
-
-
-    /*
-     * I TOTAL vengono usati come controllo.
-     */
-
-    const awayTotal =
-        parseTotalRow(
-            words,
-            200,
-            410
-        );
-
-    const homeTotal =
-        parseTotalRow(
-            words,
-            430,
-            665
-        );
-
-
-    if (
-        awayTotal &&
-        Number.isFinite(awayTotal.pts)
-    ) {
-        away.score =
-            awayTotal.pts;
-    }
-
-    if (
-        homeTotal &&
-        Number.isFinite(homeTotal.pts)
-    ) {
-        home.score =
-            homeTotal.pts;
-    }
-
-
-    /*
-     * Se non abbiamo trovato il total,
-     * sommiamo i PTS dei giocatori.
-     */
-
-    if (
-        !Number.isFinite(away.score)
-    ) {
-        away.score =
-            sum(
-                away.players.map(
-                    p => p.pts
-                )
-            );
-    }
-
-    if (
-        !Number.isFinite(home.score)
-    ) {
-        home.score =
-            sum(
-                home.players.map(
-                    p => p.pts
-                )
-            );
-    }
-
-
-    return {
-        game_type: "NBA 2K GAME STATS",
-
-        away_team: away,
-
-        home_team: home
     };
+
+    return normalized;
+
 }
 
 
 /* ============================================================
-   BUILD ROWS
+   NORMALIZE TEAM
 ============================================================ */
 
-function buildRows(words) {
-
-    if (!words.length) {
-        return [];
-    }
-
-
-    const sorted =
-        [...words].sort(
-            (a, b) =>
-                a.centerY -
-                b.centerY
-        );
-
-
-    const rows = [];
-
-    const tolerance = 14;
-
-
-    for (const word of sorted) {
-
-        let row =
-            rows.find(
-                r =>
-                    Math.abs(
-                        r.centerY -
-                        word.centerY
-                    ) <= tolerance
-            );
-
-
-        if (!row) {
-
-            row = {
-                centerY:
-                    word.centerY,
-
-                words: []
-            };
-
-            rows.push(row);
-        }
-
-
-        row.words.push(word);
-
-
-        /*
-         * Ricalcoliamo il centro Y.
-         */
-
-        row.centerY =
-            row.words.reduce(
-                (total, w) =>
-                    total + w.centerY,
-                0
-            ) /
-            row.words.length;
-
-    }
-
-
-    for (const row of rows) {
-
-        row.words.sort(
-            (a, b) =>
-                a.left -
-                b.left
-        );
-
-        row.text =
-            row.words
-                .map(
-                    w => w.text
-                )
-                .join(" ");
-
-    }
-
-
-    return rows.sort(
-        (a, b) =>
-            a.centerY -
-            b.centerY
-    );
-}
-
-
-/* ============================================================
-   PLAYER ROW SELECTION
-============================================================ */
-
-function selectPlayerRows(rows) {
-
-    /*
-     * Eliminiamo header.
-     */
-
-    let candidates =
-        rows.filter(
-            row => {
-
-                const t =
-                    row.text.toUpperCase();
-
-                return !t.includes("TEAM") &&
-                       !t.includes("GRD") &&
-                       !t.includes("PTS") &&
-                       !t.includes("TOTAL");
-            }
-        );
-
-
-    /*
-     * Dovrebbero esserci esattamente 5 giocatori.
-     */
-
-    if (candidates.length >= 5) {
-
-        return candidates
-            .slice(0, 5);
-
-    }
-
-
-    return candidates;
-}
-
-
-/* ============================================================
-   PARSE TEAM
-============================================================ */
-
-function parseTeam(rows, teamName) {
+function normalizeTeam(team) {
 
     const players =
-        rows.map(
-            row =>
-                parsePlayer(row)
-        );
-
+        Array.isArray(team.players)
+            ? team.players
+            : [];
 
     return {
-        name: teamName,
-        score: null,
-        players
-    };
-}
 
+        name:
+            team.name ||
+            "Unknown Team",
 
-/* ============================================================
-   PARSE PLAYER
-============================================================ */
+        score:
+            numberOrNull(
+                team.score
+            ),
 
-function parsePlayer(row) {
-
-    const values = {
-        name: "",
-        grade: "",
-        pts: 0,
-        reb: 0,
-        ast: 0,
-        stl: 0,
-        blk: 0,
-        fouls: 0,
-        to: 0,
-        fgm: 0,
-        fga: 0,
-        three_pm: 0,
-        three_pa: 0,
-        ftm: 0,
-        fta: 0
-    };
-
-
-    /*
-     * Assegniamo ogni parola alla colonna più vicina.
-     */
-
-    const columns = {
-        name: [],
-        grade: [],
-        pts: [],
-        reb: [],
-        ast: [],
-        stl: [],
-        blk: [],
-        fouls: [],
-        to: [],
-        fg: [],
-        three: [],
-        ft: []
-    };
-
-
-    for (const word of row.words) {
-
-        const column =
-            nearestColumn(
-                word.centerX
-            );
-
-        if (column) {
-            columns[column].push(
-                word
-            );
-        }
-
-    }
-
-
-    /*
-     * PLAYER NAME
-     */
-
-    values.name =
-        columns.name
-            .map(
-                w => w.text
-            )
-            .join(" ")
-            .trim();
-
-
-    /*
-     * Se il nome è vuoto,
-     * prendiamo tutto quello prima
-     * della grade.
-     */
-
-    if (!values.name) {
-
-        values.name =
-            row.words
-                .filter(
-                    w =>
-                        w.centerX <
-                        665
-                )
+        players:
+            players
+                .slice(0, 5)
                 .map(
-                    w => w.text
+                    normalizePlayer
                 )
-                .join(" ")
-                .trim();
 
-    }
-
-
-    /*
-     * GRADE
-     */
-
-    values.grade =
-        normalizeGrade(
-            columns.grade
-                .map(
-                    w => w.text
-                )
-                .join("")
-        );
-
-
-    /*
-     * NUMERI
-     */
-
-    values.pts =
-        extractInteger(
-            columns.pts
-        );
-
-    values.reb =
-        extractInteger(
-            columns.reb
-        );
-
-    values.ast =
-        extractInteger(
-            columns.ast
-        );
-
-    values.stl =
-        extractInteger(
-            columns.stl
-        );
-
-    values.blk =
-        extractInteger(
-            columns.blk
-        );
-
-    values.fouls =
-        extractInteger(
-            columns.fouls
-        );
-
-    values.to =
-        extractInteger(
-            columns.to
-        );
-
-
-    /*
-     * SHOOTING
-     */
-
-    const fg =
-        extractFraction(
-            columns.fg
-        );
-
-    values.fgm =
-        fg[0];
-
-    values.fga =
-        fg[1];
-
-
-    const three =
-        extractFraction(
-            columns.three
-        );
-
-    values.three_pm =
-        three[0];
-
-    values.three_pa =
-        three[1];
-
-
-    const ft =
-        extractFraction(
-            columns.ft
-        );
-
-    values.ftm =
-        ft[0];
-
-    values.fta =
-        ft[1];
-
-
-    return values;
-}
-
-
-/* ============================================================
-   COLUMN DETECTION
-============================================================ */
-
-function nearestColumn(x) {
-
-    let best = null;
-    let distance = Infinity;
-
-
-    for (
-        const [name, center]
-        of Object.entries(
-            COLUMN_CENTERS
-        )
-    ) {
-
-        const d =
-            Math.abs(
-                x - center
-            );
-
-
-        if (d < distance) {
-
-            distance = d;
-            best = name;
-
-        }
-
-    }
-
-
-    /*
-     * Evitiamo di assegnare parole
-     * completamente fuori dalla tabella.
-     */
-
-    if (distance > 48) {
-        return null;
-    }
-
-
-    return best;
-}
-
-
-/* ============================================================
-   TOTAL ROW
-============================================================ */
-
-function parseTotalRow(
-    words,
-    minY,
-    maxY
-) {
-
-    const totalWords =
-        words.filter(
-            w => {
-
-                if (
-                    w.centerY < minY ||
-                    w.centerY > maxY
-                ) {
-                    return false;
-                }
-
-                return (
-                    w.text
-                        .toUpperCase()
-                        .includes("TOTAL")
-                );
-
-            }
-        );
-
-
-    if (!totalWords.length) {
-
-        /*
-         * Cerca anche una riga con
-         * molte statistiche e senza nome.
-         */
-
-        const rows =
-            buildRows(
-                words.filter(
-                    w =>
-                        w.centerY >= minY &&
-                        w.centerY <= maxY &&
-                        w.centerX >= 680
-                )
-            );
-
-
-        const candidate =
-            rows.find(
-                r =>
-                    r.words.length >= 8 &&
-                    /121|213|37\/60|71\/84/.test(
-                        r.text
-                    )
-            );
-
-
-        if (!candidate) {
-            return null;
-        }
-
-        return parseTotalFromRow(
-            candidate
-        );
-    }
-
-
-    /*
-     * Troviamo la riga contenente TOTAL.
-     */
-
-    const rows =
-        buildRows(
-            words.filter(
-                w =>
-                    w.centerY >= minY &&
-                    w.centerY <= maxY
-            )
-        );
-
-
-    const row =
-        rows.find(
-            r =>
-                r.text
-                    .toUpperCase()
-                    .includes("TOTAL")
-        );
-
-
-    if (!row) {
-        return null;
-    }
-
-
-    return parseTotalFromRow(
-        row
-    );
-}
-
-
-function parseTotalFromRow(row) {
-
-    const result = {
-        pts: null
     };
 
-
-    const ptsWords =
-        row.words.filter(
-            w =>
-                Math.abs(
-                    w.centerX -
-                    COLUMN_CENTERS.pts
-                ) < 40
-        );
-
-
-    if (ptsWords.length) {
-
-        const value =
-            parseInt(
-                normalizeNumber(
-                    ptsWords
-                        .map(
-                            w => w.text
-                        )
-                        .join("")
-                ),
-                10
-            );
-
-        if (Number.isFinite(value)) {
-            result.pts = value;
-        }
-
-    }
-
-
-    return result;
 }
 
 
 /* ============================================================
-   OCR NORMALIZATION
+   NORMALIZE PLAYER
 ============================================================ */
 
-function cleanOCRText(text) {
+function normalizePlayer(player) {
 
-    return text
-        .replace(/[©®™]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
+    return {
 
+        name:
+            player.name ||
+            "",
 
-function normalizeNumber(text) {
+        grade:
+            player.grade ||
+            "",
 
-    return text
-        .replace(/[OoQ]/g, "0")
-        .replace(/[Il|]/g, "1")
-        .replace(/[Ss]/g, "5")
-        .replace(/[Bb]/g, "8")
-        .replace(/[^0-9]/g, "");
-}
+        pts:
+            numberOrZero(
+                player.pts
+            ),
 
+        reb:
+            numberOrZero(
+                player.reb
+            ),
 
-function normalizeGrade(text) {
+        ast:
+            numberOrZero(
+                player.ast
+            ),
 
-    let value =
-        text
-            .toUpperCase()
-            .replace(/[^A-Z0-9+\-]/g, "");
+        stl:
+            numberOrZero(
+                player.stl
+            ),
 
+        blk:
+            numberOrZero(
+                player.blk
+            ),
 
-    const grades = [
-        "A+",
-        "A-",
-        "A",
-        "B+",
-        "B-",
-        "B",
-        "C+",
-        "C-",
-        "C",
-        "D+",
-        "D-",
-        "D",
-        "F"
-    ];
+        fouls:
+            numberOrZero(
+                player.fouls
+            ),
 
+        to:
+            numberOrZero(
+                player.to
+            ),
 
-    const found =
-        grades.find(
-            grade =>
-                value === grade
-        );
+        fgm:
+            numberOrZero(
+                player.fgm
+            ),
 
+        fga:
+            numberOrZero(
+                player.fga
+            ),
 
-    return found || value;
-}
+        three_pm:
+            numberOrZero(
+                player.three_pm
+            ),
 
+        three_pa:
+            numberOrZero(
+                player.three_pa
+            ),
 
-/* ============================================================
-   INTEGER EXTRACTION
-============================================================ */
+        ftm:
+            numberOrZero(
+                player.ftm
+            ),
 
-function extractInteger(words) {
-
-    if (!words.length) {
-        return 0;
-    }
-
-
-    const text =
-        words
-            .map(
-                w => w.text
+        fta:
+            numberOrZero(
+                player.fta
             )
-            .join("");
+
+    };
+
+}
 
 
-    const normalized =
-        normalizeNumber(
-            text
-        );
+/* ============================================================
+   NUMBER HELPERS
+============================================================ */
 
+function numberOrZero(value) {
 
     const number =
-        parseInt(
-            normalized,
-            10
-        );
-
+        Number(value);
 
     return Number.isFinite(number)
         ? number
         : 0;
+
 }
 
 
-/* ============================================================
-   FRACTION
-============================================================ */
+function numberOrNull(value) {
 
-function extractFraction(words) {
+    const number =
+        Number(value);
 
-    if (!words.length) {
-        return [0, 0];
-    }
-
-
-    let text =
-        words
-            .map(
-                w => w.text
-            )
-            .join("");
-
-
-    text =
-        text
-            .replace(/[OoQ]/g, "0")
-            .replace(/[Il|]/g, "1")
-            .replace(/[Ss]/g, "5")
-            .replace(/\s/g, "");
-
-
-    /*
-     * OCR può produrre:
-     *
-     * 9/12
-     * 0/O
-     * O/O
-     * 71/84
-     */
-
-
-    const match =
-        text.match(
-            /(\d+)\s*[\/\\]\s*(\d+)/
-        );
-
-
-    if (match) {
-
-        return [
-            parseInt(
-                match[1],
-                10
-            ),
-
-            parseInt(
-                match[2],
-                10
-            )
-        ];
-
-    }
-
-
-    /*
-     * Caso "OO" / "0O"
-     */
-
-    if (
-        /^0+$/i.test(text)
-    ) {
-
-        return [0, 0];
-
-    }
-
-
-    return [0, 0];
-}
-
-
-/* ============================================================
-   FIND WORD
-============================================================ */
-
-function findWord(
-    words,
-    target
-) {
-
-    return words.find(
-        w =>
-            w.text
-                .toLowerCase()
-                .includes(
-                    target
-                )
-    );
+    return Number.isFinite(number)
+        ? number
+        : null;
 
 }
 
 
 /* ============================================================
-   SUM
-============================================================ */
-
-function sum(values) {
-
-    return values.reduce(
-        (a, b) =>
-            a +
-            (
-                Number.isFinite(b)
-                    ? b
-                    : 0
-            ),
-        0
-    );
-}
-
-
-/* ============================================================
-   RENDER
+   RENDER GAME
 ============================================================ */
 
 function renderGame(game) {
 
+    awayTeamName.textContent =
+        game.away_team.name;
+
+    homeTeamName.textContent =
+        game.home_team.name;
+
     awayScore.textContent =
-        game.away_team.score ?? "-";
+        game.away_team.score ??
+        "-";
 
     homeScore.textContent =
-        game.home_team.score ?? "-";
+        game.home_team.score ??
+        "-";
 
 
     renderPlayers(
@@ -2146,12 +1209,18 @@ function renderGame(game) {
         game.away_team.players
     );
 
+
     renderPlayers(
         homePlayers,
         game.home_team.players
     );
+
 }
 
+
+/* ============================================================
+   RENDER PLAYERS
+============================================================ */
 
 function renderPlayers(
     container,
@@ -2171,18 +1240,59 @@ function renderPlayers(
 
 
             tr.innerHTML = `
-                <td>${escapeHtml(player.name)}</td>
-                <td>${escapeHtml(player.grade)}</td>
-                <td>${player.pts}</td>
-                <td>${player.reb}</td>
-                <td>${player.ast}</td>
-                <td>${player.stl}</td>
-                <td>${player.blk}</td>
-                <td>${player.fouls}</td>
-                <td>${player.to}</td>
-                <td>${player.fgm}/${player.fga}</td>
-                <td>${player.three_pm}/${player.three_pa}</td>
-                <td>${player.ftm}/${player.fta}</td>
+
+                <td>
+                    ${escapeHtml(
+                        player.name
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        player.grade
+                    )}
+                </td>
+
+                <td>
+                    ${player.pts}
+                </td>
+
+                <td>
+                    ${player.reb}
+                </td>
+
+                <td>
+                    ${player.ast}
+                </td>
+
+                <td>
+                    ${player.stl}
+                </td>
+
+                <td>
+                    ${player.blk}
+                </td>
+
+                <td>
+                    ${player.fouls}
+                </td>
+
+                <td>
+                    ${player.to}
+                </td>
+
+                <td>
+                    ${player.fgm}/${player.fga}
+                </td>
+
+                <td>
+                    ${player.three_pm}/${player.three_pa}
+                </td>
+
+                <td>
+                    ${player.ftm}/${player.fta}
+                </td>
+
             `;
 
 
@@ -2193,10 +1303,6 @@ function renderPlayers(
         }
     );
 
-
-    /*
-     * Riga totale calcolata dai giocatori.
-     */
 
     const total =
         calculateTotal(
@@ -2209,40 +1315,54 @@ function renderPlayers(
             "tr"
         );
 
-
     tr.className =
         "total";
 
 
     tr.innerHTML = `
+
         <td>TOTAL</td>
+
         <td></td>
+
         <td>${total.pts}</td>
+
         <td>${total.reb}</td>
+
         <td>${total.ast}</td>
+
         <td>${total.stl}</td>
+
         <td>${total.blk}</td>
+
         <td>${total.fouls}</td>
+
         <td>${total.to}</td>
+
         <td>${total.fgm}/${total.fga}</td>
+
         <td>${total.three_pm}/${total.three_pa}</td>
+
         <td>${total.ftm}/${total.fta}</td>
+
     `;
 
 
     container.appendChild(
         tr
     );
+
 }
 
 
 /* ============================================================
-   TOTAL CALCULATION
+   TOTAL
 ============================================================ */
 
 function calculateTotal(players) {
 
     const fields = [
+
         "pts",
         "reb",
         "ast",
@@ -2256,6 +1376,7 @@ function calculateTotal(players) {
         "three_pa",
         "ftm",
         "fta"
+
     ];
 
 
@@ -2268,7 +1389,10 @@ function calculateTotal(players) {
 
         total[field] =
             players.reduce(
-                (sum, player) =>
+                (
+                    sum,
+                    player
+                ) =>
                     sum +
                     (
                         Number(
@@ -2282,6 +1406,7 @@ function calculateTotal(players) {
 
 
     return total;
+
 }
 
 
@@ -2293,20 +1418,33 @@ copyJson.addEventListener(
     "click",
     async () => {
 
-        await navigator.clipboard.writeText(
-            json.value
-        );
+        try {
 
-        copyJson.textContent =
-            "Copiato!";
+            await navigator.clipboard.writeText(
+                json.value
+            );
 
-        setTimeout(
-            () => {
-                copyJson.textContent =
-                    "Copia JSON";
-            },
-            1500
-        );
+            copyJson.textContent =
+                "Copiato!";
+
+            setTimeout(
+                () => {
+
+                    copyJson.textContent =
+                        "Copia JSON";
+
+                },
+                1500
+            );
+
+        } catch (error) {
+
+            showStatus(
+                "Impossibile copiare il JSON.",
+                "error"
+            );
+
+        }
 
     }
 );
@@ -2351,11 +1489,14 @@ downloadJson.addEventListener(
             "nba2k-game-stats.json";
 
 
-        document.body.appendChild(a);
+        document.body.appendChild(
+            a
+        );
 
         a.click();
 
         a.remove();
+
 
         URL.revokeObjectURL(
             url
@@ -2363,174 +1504,6 @@ downloadJson.addEventListener(
 
     }
 );
-
-
-/* ============================================================
-   IMAGE OPTIMIZATION
-============================================================ */
-
-function optimizeImage(file) {
-
-    return new Promise(
-        (resolve, reject) => {
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload =
-                event => {
-
-                    const img =
-                        new Image();
-
-
-                    img.onload =
-                        () => {
-
-                            let width =
-                                img.width;
-
-                            let height =
-                                img.height;
-
-
-                            /*
-                             * Manteniamo almeno
-                             * 1800px di larghezza.
-                             */
-
-                            const minWidth =
-                                1800;
-
-
-                            if (
-                                width <
-                                minWidth
-                            ) {
-
-                                const scale =
-                                    minWidth /
-                                    width;
-
-                                width =
-                                    Math.round(
-                                        width *
-                                        scale
-                                    );
-
-                                height =
-                                    Math.round(
-                                        height *
-                                        scale
-                                    );
-
-                            }
-
-
-                            const canvas =
-                                document.createElement(
-                                    "canvas"
-                                );
-
-
-                            canvas.width =
-                                width;
-
-                            canvas.height =
-                                height;
-
-
-                            const ctx =
-                                canvas.getContext(
-                                    "2d"
-                                );
-
-
-                            ctx.fillStyle =
-                                "#ffffff";
-
-                            ctx.fillRect(
-                                0,
-                                0,
-                                width,
-                                height
-                            );
-
-
-                            ctx.drawImage(
-                                img,
-                                0,
-                                0,
-                                width,
-                                height
-                            );
-
-
-                            canvas.toBlob(
-                                blob => {
-
-                                    if (!blob) {
-
-                                        reject(
-                                            new Error(
-                                                "Errore durante l'ottimizzazione."
-                                            )
-                                        );
-
-                                        return;
-                                    }
-
-
-                                    resolve(
-                                        blob
-                                    );
-
-                                },
-                                "image/jpeg",
-                                0.96
-                            );
-
-                        };
-
-
-                    img.onerror =
-                        () => {
-
-                            reject(
-                                new Error(
-                                    "Impossibile leggere l'immagine."
-                                )
-                            );
-
-                        };
-
-
-                    img.src =
-                        event.target.result;
-
-                };
-
-
-            reader.onerror =
-                () => {
-
-                    reject(
-                        new Error(
-                            "Errore lettura file."
-                        )
-                    );
-
-                };
-
-
-            reader.readAsDataURL(
-                file
-            );
-
-        }
-    );
-}
 
 
 /* ============================================================
@@ -2548,6 +1521,7 @@ function showStatus(
     status.className =
         "status " +
         type;
+
 }
 
 
@@ -2558,6 +1532,7 @@ function hideStatus() {
 
     status.className =
         "status";
+
 }
 
 
@@ -2588,13 +1563,23 @@ function formatBytes(bytes) {
 
 
     return (
+
         (
             bytes /
-            Math.pow(1024, i)
-        ).toFixed(2) +
+            Math.pow(
+                1024,
+                i
+            )
+        ).toFixed(2)
+
+        +
+
         " " +
+
         units[i]
+
     );
+
 }
 
 
@@ -2605,29 +1590,36 @@ function formatBytes(bytes) {
 function escapeHtml(value) {
 
     return String(value)
+
         .replace(
             /&/g,
             "&amp;"
         )
+
         .replace(
             /</g,
             "&lt;"
         )
+
         .replace(
             />/g,
             "&gt;"
         )
+
         .replace(
             /"/g,
             "&quot;"
         )
+
         .replace(
             /'/g,
             "&#039;"
         );
+
 }
 
 </script>
 
 </body>
 </html>
+```
