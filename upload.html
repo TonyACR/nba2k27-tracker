@@ -5,234 +5,519 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Upload partita | NBA 2K27 Tracker</title>
+    <title>NBA 2K27 Tracker - OCR</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0f1117;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #9298a5;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #181b23;
+            border: 1px solid #292e39;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #dfe3ea;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 9px;
+            border: 1px solid #343a47;
+            background: #10131a;
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: #5b8cff;
+        }
+
+        .api-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .api-row input {
+            flex: 1;
+        }
+
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .primary {
+            background: #ffffff;
+            color: #111318;
+        }
+
+        .secondary {
+            background: #292e39;
+            color: white;
+        }
+
+        .danger {
+            background: #702b32;
+            color: white;
+        }
+
+        .upload-area {
+            border: 2px dashed #3b4250;
+            border-radius: 14px;
+            padding: 45px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #6c7483;
+            background: #1c2029;
+        }
+
+        .upload-area.dragover {
+            border-color: #ffffff;
+            background: #20242e;
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: #858c99;
+            font-size: 13px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .preview-container img {
+            display: block;
+            max-width: 100%;
+            max-height: 600px;
+            margin: 0 auto;
+            border-radius: 10px;
+            border: 1px solid #343a47;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-top: 12px;
+            padding: 12px;
+            background: #10131a;
+            border-radius: 8px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            display: none;
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        .status.loading {
+            display: block;
+            background: #252a34;
+            color: #d9dee8;
+        }
+
+        .status.success {
+            display: block;
+            background: #193a29;
+            color: #9ae6b4;
+        }
+
+        .status.error {
+            display: block;
+            background: #401e22;
+            color: #ff9ca5;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 2px solid #777;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            resize: vertical;
+            padding: 15px;
+            border-radius: 9px;
+            border: 1px solid #343a47;
+            background: #0d1016;
+            color: #e8ebef;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: #10131a;
+            border-radius: 9px;
+            padding: 15px;
+        }
+
+        .stat-title {
+            color: #858c99;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .warning {
+            margin-top: 10px;
+            color: #e9b949;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 25px 14px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .api-row {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .file-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-slate-950 text-white min-h-screen">
+<body>
 
-<div class="max-w-6xl mx-auto px-6 py-8">
+<div class="container">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+    <h1>NBA 2K27 Tracker</h1>
 
-    <div class="flex items-center justify-between mb-10">
-
-        <div>
-            <h1 class="text-2xl font-black">
-                NBA 2K27 Tracker
-            </h1>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Upload partita
-            </p>
-        </div>
-
-        <div class="flex items-center gap-4">
-
-            <a
-                href="index.html"
-                class="text-slate-400 hover:text-white font-medium text-sm transition">
-                Dashboard
-            </a>
-
-            <button
-                id="logoutButton"
-                type="button"
-                class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg font-semibold text-sm transition">
-                Logout
-            </button>
-
-        </div>
-
+    <div class="subtitle">
+        Screenshot OCR — estrazione automatica delle statistiche
     </div>
 
+    <!-- API -->
+    <div class="card">
 
-    <!-- =====================================================
-         TITLE
-    ====================================================== -->
+        <h2>OCR.space</h2>
 
-    <div class="mb-8">
+        <label for="apiKey">API Key</label>
 
-        <h1 class="text-3xl font-black">
-            Carica partita
-        </h1>
-
-        <p class="text-slate-400 mt-2">
-            Estrattore statistiche basato su
-            <strong>Qwen Vision AI (Groq)</strong>.
-        </p>
-
-    </div>
-
-
-    <!-- =====================================================
-         GROQ API KEY
-    ====================================================== -->
-
-    <div class="mb-6 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
-
-        <label
-            for="apiKeyInput"
-            class="block text-sm font-semibold mb-2">
-            Groq API Key
-        </label>
-
-        <div class="flex gap-3">
-
+        <div class="api-row">
             <input
-                id="apiKeyInput"
                 type="password"
+                id="apiKey"
+                placeholder="Inserisci la tua API key OCR.space"
                 autocomplete="off"
-                placeholder="Incolla la tua Groq Key (es. gsk_...)"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:border-blue-500 outline-none">
+            >
 
-            <button
-                id="saveKeyBtn"
-                type="button"
-                class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl font-semibold text-sm transition">
+            <button class="secondary" id="saveKeyBtn">
                 Salva
             </button>
 
+            <button class="danger" id="deleteKeyBtn">
+                Elimina
+            </button>
         </div>
 
-        <p
-            id="keyStatus"
-            class="text-xs text-slate-500 mt-2">
-            Inserisci la tua Groq API Key.
-        </p>
+        <div class="warning">
+            La chiave viene salvata solamente nel localStorage del browser.
+            Non inserirla direttamente nel codice se pubblicherai questa pagina.
+        </div>
 
     </div>
 
 
-    <!-- =====================================================
-         UPLOAD
-    ====================================================== -->
+    <!-- UPLOAD -->
+    <div class="card">
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <h2>Carica partita</h2>
 
-        <label
-            for="screenshot"
-            class="block text-sm font-semibold mb-3">
-            Screenshot Box Score / GAME STATS NBA 2K
-        </label>
+        <div
+            class="upload-area"
+            id="uploadArea"
+        >
+
+            <div class="upload-icon">📷</div>
+
+            <div class="upload-text">
+                Trascina qui lo screenshot
+            </div>
+
+            <div class="upload-subtext">
+                oppure clicca per selezionare un'immagine
+            </div>
+
+        </div>
 
         <input
-            id="screenshot"
             type="file"
-            accept="image/png,image/jpeg,image/webp"
-            class="block w-full text-sm text-slate-300
-                   file:mr-4 file:py-2 file:px-4
-                   file:rounded-lg file:border-0
-                   file:bg-blue-600 file:text-white
-                   hover:file:bg-blue-500 transition cursor-pointer">
+            id="fileInput"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+        >
 
-
-        <!-- =================================================
-             PREVIEW
-        ================================================== -->
-
+        <!-- PREVIEW -->
         <div
+            class="preview-container"
             id="previewContainer"
-            class="hidden mt-5">
-
-            <p class="text-xs text-slate-400 mb-2">
-                Anteprima screenshot
-            </p>
+        >
 
             <img
-                id="imagePreview"
-                class="max-h-96 rounded-xl border border-slate-700 mx-auto"
-                alt="Screenshot partita">
+                id="previewImage"
+                alt="Anteprima screenshot"
+            >
+
+            <div class="file-info">
+
+                <span id="fileName">
+                    Nessun file
+                </span>
+
+                <span id="fileSize">
+                    -
+                </span>
+
+            </div>
 
         </div>
 
+        <!-- BUTTONS -->
+        <div class="actions">
 
-        <!-- =================================================
-             ANALYZE BUTTON
-        ================================================== -->
+            <button
+                class="primary"
+                id="analyzeBtn"
+                disabled
+            >
+                Analizza screenshot
+            </button>
 
-        <button
-            id="analyzeButton"
-            type="button"
-            class="mt-6 w-full bg-blue-600 hover:bg-blue-500
-                   rounded-xl py-3 font-bold transition
-                   flex items-center justify-center gap-2">
+            <button
+                class="secondary"
+                id="removeBtn"
+                disabled
+            >
+                Rimuovi screenshot
+            </button>
 
-            <span id="btnText">
-                Analizza con Qwen Vision AI
-            </span>
+        </div>
 
-        </button>
-
-
-        <!-- =================================================
-             MESSAGE
-        ================================================== -->
-
+        <!-- STATUS -->
         <div
-            id="message"
-            class="hidden mt-5 rounded-xl px-4 py-3 text-sm">
-        </div>
+            class="status"
+            id="status"
+        ></div>
 
     </div>
 
 
-    <!-- =====================================================
-         RESULTS
-    ====================================================== -->
-
+    <!-- OCR RESULT -->
     <div
-        id="resultContainer"
-        class="hidden mt-8">
+        class="card result-section"
+        id="resultSection"
+    >
 
-        <div
-            class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+        <h2>Testo riconosciuto</h2>
 
-            <div class="flex justify-between items-center mb-5">
+        <textarea
+            id="ocrResult"
+            spellcheck="false"
+        ></textarea>
 
-                <div>
-
-                    <h2 class="text-xl font-bold">
-                        Giocatori estratti dall'AI
-                    </h2>
-
-                    <p class="text-xs text-slate-400">
-                        Verifica o correggi le statistiche prima del salvataggio.
-                    </p>
-
-                </div>
-
-                <button
-                    id="addPlayerBtn"
-                    type="button"
-                    class="text-xs bg-slate-800 hover:bg-slate-700
-                           text-blue-400 px-3 py-1.5 rounded-lg
-                           border border-slate-700 font-semibold">
-                    + Aggiungi Giocatore
-                </button>
-
-            </div>
-
-
-            <div
-                id="playersContainer"
-                class="space-y-4">
-            </div>
-
+        <div class="result-actions">
 
             <button
-                id="saveButton"
-                type="button"
-                class="mt-8 w-full bg-green-600 hover:bg-green-500
-                       rounded-xl py-3 font-bold transition">
-                Salva partita su Supabase
+                class="primary"
+                id="copyBtn"
+            >
+                Copia testo
             </button>
+
+            <button
+                class="secondary"
+                id="downloadBtn"
+            >
+                Scarica TXT
+            </button>
+
+            <button
+                class="secondary"
+                id="clearResultBtn"
+            >
+                Cancella risultato
+            </button>
+
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-title">
+                    Caratteri
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="characterCount"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">
+                    Parole
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="wordCount"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">
+                    Righe
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="lineCount"
+                >
+                    0
+                </div>
+            </div>
 
         </div>
 
@@ -243,1786 +528,910 @@
 
 <script>
 
-/* ============================================================
-   CONFIGURAZIONE SUPABASE
-============================================================ */
+    /*
+     * ============================================================
+     * CONFIGURAZIONE
+     * ============================================================
+     */
 
-const SUPABASE_URL =
-    "https://qytqvqruzsscxyatdcol.supabase.co";
+    const OCR_API_URL = "https://api.ocr.space/parse/image";
 
+    /*
+     * 2 = OCR Engine 2
+     *
+     * Se dovesse dare risultati peggiori con gli screenshot
+     * NBA 2K, possiamo provare Engine 1.
+     */
+    const OCR_ENGINE = "2";
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_T1f3SrRLaBADTMfFrh9PYQ_WbZcxmda";
-
-
-const supabaseClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
-
-/* ============================================================
-   CONFIGURAZIONE GROQ
-============================================================ */
-
-const GROQ_API_URL =
-    "https://api.groq.com/openai/v1/chat/completions";
+    /*
+     * Lingua:
+     *
+     * Gli screenshot NBA 2K normalmente hanno testo inglese.
+     */
+    const OCR_LANGUAGE = "eng";
 
 
-/*
- * Modello multimodale Groq.
- */
-const GROQ_MODEL =
-    "qwen/qwen3.6-27b";
+    /*
+     * ============================================================
+     * ELEMENTI DOM
+     * ============================================================
+     */
+
+    const apiKeyInput = document.getElementById("apiKey");
+    const saveKeyBtn = document.getElementById("saveKeyBtn");
+    const deleteKeyBtn = document.getElementById("deleteKeyBtn");
+
+    const uploadArea = document.getElementById("uploadArea");
+    const fileInput = document.getElementById("fileInput");
+
+    const previewContainer = document.getElementById("previewContainer");
+    const previewImage = document.getElementById("previewImage");
+
+    const fileName = document.getElementById("fileName");
+    const fileSize = document.getElementById("fileSize");
+
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const removeBtn = document.getElementById("removeBtn");
+
+    const statusBox = document.getElementById("status");
+
+    const resultSection = document.getElementById("resultSection");
+    const ocrResult = document.getElementById("ocrResult");
+
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const clearResultBtn = document.getElementById("clearResultBtn");
+
+    const characterCount = document.getElementById("characterCount");
+    const wordCount = document.getElementById("wordCount");
+    const lineCount = document.getElementById("lineCount");
 
 
-/* ============================================================
-   ELEMENTI HTML
-============================================================ */
+    /*
+     * ============================================================
+     * STATO
+     * ============================================================
+     */
 
-const apiKeyInput =
-    document.getElementById("apiKeyInput");
-
-const saveKeyBtn =
-    document.getElementById("saveKeyBtn");
-
-const keyStatus =
-    document.getElementById("keyStatus");
-
-const screenshotInput =
-    document.getElementById("screenshot");
-
-const analyzeButton =
-    document.getElementById("analyzeButton");
-
-const btnText =
-    document.getElementById("btnText");
-
-const message =
-    document.getElementById("message");
-
-const resultContainer =
-    document.getElementById("resultContainer");
-
-const playersContainer =
-    document.getElementById("playersContainer");
-
-const addPlayerBtn =
-    document.getElementById("addPlayerBtn");
-
-const saveButton =
-    document.getElementById("saveButton");
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-const previewContainer =
-    document.getElementById("previewContainer");
-
-const imagePreview =
-    document.getElementById("imagePreview");
+    let selectedFile = null;
 
 
-/* ============================================================
-   CONTROLLO CARICAMENTO
-============================================================ */
+    /*
+     * ============================================================
+     * API KEY
+     * ============================================================
+     */
 
-console.log(
-    "========================================"
-);
+    function loadApiKey() {
 
-console.log(
-    "NBA 2K27 TRACKER - UPLOAD"
-);
+        const savedKey = localStorage.getItem("ocr_space_api_key");
 
-console.log(
-    "Pagina caricata correttamente."
-);
-
-console.log(
-    "Groq model:",
-    GROQ_MODEL
-);
-
-console.log(
-    "Supabase URL:",
-    SUPABASE_URL
-);
-
-console.log(
-    "========================================"
-);
-
-
-/* ============================================================
-   MESSAGGI
-============================================================ */
-
-function showMessage(
-    text,
-    type = "info"
-) {
-
-    message.className =
-        "mt-5 rounded-xl px-4 py-3 text-sm border";
-
-
-    if (type === "error") {
-
-        message.classList.add(
-            "bg-red-900/50",
-            "border-red-800",
-            "text-red-300"
-        );
-
-    }
-    else if (type === "success") {
-
-        message.classList.add(
-            "bg-green-900/50",
-            "border-green-800",
-            "text-green-300"
-        );
-
-    }
-    else {
-
-        message.classList.add(
-            "bg-blue-900/50",
-            "border-blue-800",
-            "text-blue-300"
-        );
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+        }
 
     }
 
 
-    message.textContent =
-        text;
+    saveKeyBtn.addEventListener("click", () => {
 
-}
-
-
-function hideMessage() {
-
-    message.classList.add(
-        "hidden"
-    );
-
-}
-
-
-/* ============================================================
-   API KEY
-============================================================ */
-
-function getApiKey() {
-
-    return (
-        localStorage.getItem(
-            "groq_api_key"
-        ) || ""
-    );
-
-}
-
-
-function updateKeyStatus() {
-
-    const key =
-        getApiKey();
-
-
-    if (key) {
-
-        apiKeyInput.value =
-            key;
-
-        keyStatus.textContent =
-            "✓ Groq API Key già salvata e pronta all'uso.";
-
-        keyStatus.className =
-            "text-xs text-green-400 mt-2";
-
-    }
-
-}
-
-
-saveKeyBtn.addEventListener(
-    "click",
-    function() {
-
-        console.log(
-            "Salvataggio Groq API Key..."
-        );
-
-
-        const key =
-            apiKeyInput.value.trim();
-
+        const key = apiKeyInput.value.trim();
 
         if (!key) {
 
-            showMessage(
-                "Inserisci una Groq API Key.",
-                "error"
-            );
+            alert("Inserisci una API key.");
 
             return;
-
         }
-
-
-        if (!key.startsWith("gsk_")) {
-
-            showMessage(
-                "La Groq API Key dovrebbe iniziare con gsk_.",
-                "error"
-            );
-
-            return;
-
-        }
-
 
         localStorage.setItem(
-            "groq_api_key",
+            "ocr_space_api_key",
             key
         );
 
+        alert("API key salvata.");
 
-        keyStatus.textContent =
-            "✓ Groq API Key salvata localmente.";
-
-        keyStatus.className =
-            "text-xs text-green-400 mt-2";
+    });
 
 
-        showMessage(
-            "Groq API Key salvata.",
-            "success"
+    deleteKeyBtn.addEventListener("click", () => {
+
+        localStorage.removeItem(
+            "ocr_space_api_key"
         );
 
-    }
-);
+        apiKeyInput.value = "";
+
+        alert("API key eliminata.");
+
+    });
 
 
-updateKeyStatus();
+    loadApiKey();
 
 
-/* ============================================================
-   PREVIEW
-============================================================ */
+    /*
+     * ============================================================
+     * UPLOAD
+     * ============================================================
+     */
 
-screenshotInput.addEventListener(
-    "change",
-    function() {
+    uploadArea.addEventListener("click", () => {
 
-        console.log(
-            "Cambio file rilevato."
-        );
+        fileInput.click();
 
-
-        const file =
-            screenshotInput.files[0];
+    });
 
 
-        if (!file) {
+    fileInput.addEventListener("change", () => {
 
-            previewContainer.classList.add(
-                "hidden"
+        if (!fileInput.files || !fileInput.files.length) {
+            return;
+        }
+
+        handleFile(fileInput.files[0]);
+
+    });
+
+
+    /*
+     * ============================================================
+     * DRAG & DROP
+     * ============================================================
+     */
+
+    uploadArea.addEventListener("dragover", (event) => {
+
+        event.preventDefault();
+
+        uploadArea.classList.add("dragover");
+
+    });
+
+
+    uploadArea.addEventListener("dragleave", () => {
+
+        uploadArea.classList.remove("dragover");
+
+    });
+
+
+    uploadArea.addEventListener("drop", (event) => {
+
+        event.preventDefault();
+
+        uploadArea.classList.remove("dragover");
+
+        const files = event.dataTransfer.files;
+
+        if (!files || !files.length) {
+            return;
+        }
+
+        handleFile(files[0]);
+
+    });
+
+
+    /*
+     * ============================================================
+     * GESTIONE FILE
+     * ============================================================
+     */
+
+    function handleFile(file) {
+
+        if (!file.type.startsWith("image/")) {
+
+            showStatus(
+                "Il file selezionato non è un'immagine.",
+                "error"
             );
 
             return;
-
         }
 
 
-        console.log(
-            "File:",
-            file.name
-        );
-
-        console.log(
-            "Tipo:",
-            file.type
-        );
-
-        console.log(
-            "Dimensione:",
-            file.size
-        );
+        selectedFile = file;
 
 
-        const reader =
-            new FileReader();
+        fileName.textContent = file.name;
+
+        fileSize.textContent =
+            formatFileSize(file.size);
 
 
-        reader.onload =
-            function(event) {
-
-                imagePreview.src =
-                    event.target.result;
-
-                previewContainer.classList.remove(
-                    "hidden"
-                );
-
-            };
+        const reader = new FileReader();
 
 
-        reader.onerror =
-            function() {
+        reader.onload = function(event) {
 
-                showMessage(
-                    "Errore nella lettura dell'immagine.",
-                    "error"
-                );
+            previewImage.src = event.target.result;
 
-            };
+            previewContainer.style.display = "block";
+
+            analyzeBtn.disabled = false;
+
+            removeBtn.disabled = false;
+
+            resultSection.style.display = "none";
+
+            hideStatus();
+
+        };
 
 
-        reader.readAsDataURL(
-            file
-        );
+        reader.readAsDataURL(file);
 
     }
-);
 
 
-/* ============================================================
-   FILE -> BASE64
-============================================================ */
+    /*
+     * ============================================================
+     * RIMOZIONE FILE
+     * ============================================================
+     */
 
-function fileToBase64(file) {
+    removeBtn.addEventListener("click", () => {
 
-    return new Promise(
-        function(resolve, reject) {
+        selectedFile = null;
 
-            const reader =
-                new FileReader();
+        fileInput.value = "";
 
+        previewImage.src = "";
 
-            reader.onload =
-                function() {
+        previewContainer.style.display = "none";
 
-                    const result =
-                        reader.result;
+        analyzeBtn.disabled = true;
 
+        removeBtn.disabled = true;
 
-                    if (
-                        typeof result !== "string" ||
-                        !result.includes(",")
-                    ) {
+        resultSection.style.display = "none";
 
-                        reject(
-                            new Error(
-                                "Impossibile convertire l'immagine."
-                            )
-                        );
+        hideStatus();
 
-                        return;
+    });
 
-                    }
 
+    /*
+     * ============================================================
+     * ANALISI OCR
+     * ============================================================
+     */
 
-                    const base64 =
-                        result.split(",")[1];
+    analyzeBtn.addEventListener("click", async () => {
 
+        if (!selectedFile) {
 
-                    resolve(
-                        base64
-                    );
-
-                };
-
-
-            reader.onerror =
-                function() {
-
-                    reject(
-                        new Error(
-                            "Errore durante la lettura del file."
-                        )
-                    );
-
-                };
-
-
-            reader.readAsDataURL(
-                file
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   PROMPT
-============================================================ */
-
-function createPrompt() {
-
-    return `
-Sei un sistema OCR specializzato nelle statistiche di NBA 2K.
-
-Analizza attentamente lo screenshot GAME STATS / BOX SCORE.
-
-Devi identificare TUTTI i giocatori visibili nella schermata
-e leggere le statistiche.
-
-Restituisci ESCLUSIVAMENTE JSON valido.
-
-Formato obbligatorio:
-
-{
-  "players": [
-    {
-      "name": "Nome giocatore",
-      "team": "Nome squadra",
-      "position": "PG",
-      "points": 0,
-      "rebounds": 0,
-      "assists": 0,
-      "steals": 0,
-      "blocks": 0,
-      "turnovers": 0,
-      "fg_made": 0,
-      "fg_attempted": 0,
-      "three_made": 0,
-      "three_attempted": 0,
-      "ft_made": 0,
-      "ft_attempted": 0,
-      "minutes": 0
-    }
-  ]
-}
-
-REGOLE IMPORTANTI:
-
-1. Non inventare statistiche.
-2. Se una statistica non è leggibile usa 0.
-3. Mantieni esattamente il nome del giocatore visibile.
-4. Non aggiungere testo fuori dal JSON.
-5. Non usare Markdown.
-6. Non creare giocatori che non sono presenti nello screenshot.
-7. Leggi attentamente tutte le colonne.
-8. Se lo screenshot contiene più giocatori, restituiscili tutti.
-9. I valori numerici devono essere numeri e non stringhe.
-10. minutes può essere espresso come numero decimale.
-11. Non confondere FG con FGA.
-12. Non confondere 3P con 3PA.
-13. Non confondere FT con FTA.
-14. Se una riga è parzialmente leggibile, estrai solamente i valori chiaramente leggibili.
-15. Restituisci sempre un oggetto JSON con la proprietà "players".
-
-Analizza lo screenshot ora.
-`;
-
-}
-
-
-/* ============================================================
-   CHIAMATA GROQ
-============================================================ */
-
-async function analyzeScreenshot(
-    file
-) {
-
-    console.log(
-        "Avvio analisi screenshot..."
-    );
-
-
-    const apiKey =
-        getApiKey();
-
-
-    if (!apiKey) {
-
-        throw new Error(
-            "Inserisci prima la tua Groq API Key."
-        );
-
-    }
-
-
-    if (!file) {
-
-        throw new Error(
-            "Nessuna immagine selezionata."
-        );
-
-    }
-
-
-    console.log(
-        "Conversione immagine in Base64..."
-    );
-
-
-    const base64 =
-        await fileToBase64(
-            file
-        );
-
-
-    console.log(
-        "Immagine convertita."
-    );
-
-
-    const mimeType =
-        file.type;
-
-
-    const requestBody = {
-
-        model:
-            GROQ_MODEL,
-
-        temperature:
-            0,
-
-        max_completion_tokens:
-            4096,
-
-        response_format: {
-            type:
-                "json_object"
-        },
-
-        messages: [
-
-            {
-                role:
-                    "system",
-
-                content:
-                    "Sei un OCR professionale per schermate statistiche NBA 2K. Restituisci esclusivamente JSON valido."
-            },
-
-            {
-
-                role:
-                    "user",
-
-                content: [
-
-                    {
-
-                        type:
-                            "text",
-
-                        text:
-                            createPrompt()
-
-                    },
-
-                    {
-
-                        type:
-                            "image_url",
-
-                        image_url: {
-
-                            url:
-                                `data:${mimeType};base64,${base64}`
-
-                        }
-
-                    }
-
-                ]
-
-            }
-
-        ]
-
-    };
-
-
-    console.log(
-        "Invio richiesta a Groq..."
-    );
-
-    console.log(
-        "Modello:",
-        GROQ_MODEL
-    );
-
-
-    let response;
-
-
-    try {
-
-        response =
-            await fetch(
-                GROQ_API_URL,
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${apiKey}`
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            requestBody
-                        )
-
-                }
-            );
-
-    }
-    catch (networkError) {
-
-        console.error(
-            "Errore di rete Groq:",
-            networkError
-        );
-
-
-        throw new Error(
-            "Impossibile raggiungere Groq. Controlla connessione, API Key e console del browser."
-        );
-
-    }
-
-
-    console.log(
-        "Risposta Groq HTTP:",
-        response.status
-    );
-
-
-    const rawText =
-        await response.text();
-
-
-    console.log(
-        "Risposta raw Groq:",
-        rawText
-    );
-
-
-    let data;
-
-
-    try {
-
-        data =
-            JSON.parse(
-                rawText
-            );
-
-    }
-    catch {
-
-        throw new Error(
-            `Groq ha restituito una risposta non valida (HTTP ${response.status}).`
-        );
-
-    }
-
-
-    if (!response.ok) {
-
-        console.error(
-            "Errore API Groq:",
-            data
-        );
-
-
-        throw new Error(
-            data?.error?.message ||
-            `Errore Groq HTTP ${response.status}`
-        );
-
-    }
-
-
-    const content =
-        data?.choices?.[0]?.message?.content;
-
-
-    if (!content) {
-
-        throw new Error(
-            "Groq non ha restituito alcun risultato."
-        );
-
-    }
-
-
-    console.log(
-        "Contenuto AI:",
-        content
-    );
-
-
-    let parsed;
-
-
-    try {
-
-        parsed =
-            typeof content === "string"
-                ? JSON.parse(content)
-                : content;
-
-    }
-    catch (jsonError) {
-
-        console.error(
-            "JSON AI non valido:",
-            content
-        );
-
-
-        throw new Error(
-            "L'AI ha restituito un JSON non valido."
-        );
-
-    }
-
-
-    if (
-        !parsed.players ||
-        !Array.isArray(
-            parsed.players
-        )
-    ) {
-
-        throw new Error(
-            'Il JSON restituito non contiene l\'array "players".'
-        );
-
-    }
-
-
-    return parsed.players;
-
-}
-
-
-/* ============================================================
-   ANALIZZA
-============================================================ */
-
-analyzeButton.addEventListener(
-    "click",
-    async function() {
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "PULSANTE ANALIZZA PREMUTO"
-        );
-
-        console.log(
-            "========================================"
-        );
-
-
-        hideMessage();
-
-
-        const file =
-            screenshotInput.files[0];
-
-
-        if (!file) {
-
-            showMessage(
+            showStatus(
                 "Seleziona prima uno screenshot.",
                 "error"
             );
 
             return;
-
         }
 
 
-        const allowedTypes = [
-
-            "image/png",
-
-            "image/jpeg",
-
-            "image/webp"
-
-        ];
+        const apiKey =
+            apiKeyInput.value.trim();
 
 
-        if (
-            !allowedTypes.includes(
-                file.type
-            )
-        ) {
+        if (!apiKey) {
 
-            showMessage(
-                "Formato immagine non supportato. Usa PNG, JPG o WEBP.",
+            showStatus(
+                "Inserisci prima la API key di OCR.space.",
                 "error"
             );
 
             return;
-
         }
 
 
-        analyzeButton.disabled =
-            true;
+        analyzeBtn.disabled = true;
 
 
-        analyzeButton.classList.add(
-            "opacity-60",
-            "cursor-not-allowed"
-        );
-
-
-        btnText.textContent =
-            "Analisi AI in corso...";
-
-
-        showMessage(
-            "Sto analizzando lo screenshot con Groq...",
-            "info"
+        showStatus(
+            '<span class="spinner"></span> Analisi dello screenshot in corso...',
+            "loading"
         );
 
 
         try {
 
-            const players =
-                await analyzeScreenshot(
-                    file
-                );
-
-
-            console.log(
-                "Giocatori estratti:",
-                players
-            );
-
-
-            if (
-                !players ||
-                players.length === 0
-            ) {
-
-                throw new Error(
-                    "Nessun giocatore rilevato nello screenshot."
-                );
-
-            }
-
-
-            renderPlayers(
-                players
-            );
-
-
-            resultContainer.classList.remove(
-                "hidden"
-            );
-
-
-            showMessage(
-                `${players.length} giocatori estratti correttamente.`,
-                "success"
-            );
-
-
-            resultContainer.scrollIntoView({
-                behavior:
-                    "smooth"
-            });
-
-        }
-        catch (error) {
-
-            console.error(
-                "========================================"
-            );
-
-            console.error(
-                "ERRORE ANALISI"
-            );
-
-            console.error(
-                error
-            );
-
-            console.error(
-                "========================================"
-            );
-
-
-            showMessage(
-                "Errore nell'estrazione: " +
-                error.message,
-                "error"
-            );
-
-        }
-        finally {
-
-            analyzeButton.disabled =
-                false;
-
-
-            analyzeButton.classList.remove(
-                "opacity-60",
-                "cursor-not-allowed"
-            );
-
-
-            btnText.textContent =
-                "Analizza con Qwen Vision AI";
-
-        }
-
-    }
-);
-
-
-/* ============================================================
-   RENDER GIOCATORI
-============================================================ */
-
-function renderPlayers(
-    players
-) {
-
-    playersContainer.innerHTML =
-        "";
-
-
-    players.forEach(
-        function(
-            player,
-            index
-        ) {
-
-            addPlayerCard(
-                player,
-                index
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   PLAYER CARD
-============================================================ */
-
-function addPlayerCard(
-    player = {},
-    index = Date.now()
-) {
-
-    const card =
-        document.createElement(
-            "div"
-        );
-
-
-    card.className =
-        "player-card bg-slate-800 border border-slate-700 rounded-xl p-5";
-
-
-    card.dataset.index =
-        index;
-
-
-    card.innerHTML = `
-
-        <div class="flex justify-between items-center mb-4">
-
-            <h3 class="font-bold text-lg">
-                Giocatore
-            </h3>
-
-            <button
-                type="button"
-                class="remove-player text-red-400 hover:text-red-300 text-sm font-semibold">
-                Rimuovi
-            </button>
-
-        </div>
-
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            ${createInput(
-                "name",
-                "Nome",
-                player.name
-            )}
-
-            ${createInput(
-                "team",
-                "Squadra",
-                player.team
-            )}
-
-            ${createInput(
-                "position",
-                "Posizione",
-                player.position
-            )}
-
-        </div>
-
-
-        <div class="mt-5">
-
-            <h4 class="text-sm font-semibold text-slate-400 mb-3">
-                Statistiche
-            </h4>
-
-
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-
-                ${createNumberInput(
-                    "points",
-                    "PTS",
-                    player.points
-                )}
-
-                ${createNumberInput(
-                    "rebounds",
-                    "REB",
-                    player.rebounds
-                )}
-
-                ${createNumberInput(
-                    "assists",
-                    "AST",
-                    player.assists
-                )}
-
-                ${createNumberInput(
-                    "steals",
-                    "STL",
-                    player.steals
-                )}
-
-                ${createNumberInput(
-                    "blocks",
-                    "BLK",
-                    player.blocks
-                )}
-
-                ${createNumberInput(
-                    "turnovers",
-                    "TO",
-                    player.turnovers
-                )}
-
-                ${createNumberInput(
-                    "fg_made",
-                    "FG",
-                    player.fg_made
-                )}
-
-                ${createNumberInput(
-                    "fg_attempted",
-                    "FGA",
-                    player.fg_attempted
-                )}
-
-                ${createNumberInput(
-                    "three_made",
-                    "3P",
-                    player.three_made
-                )}
-
-                ${createNumberInput(
-                    "three_attempted",
-                    "3PA",
-                    player.three_attempted
-                )}
-
-                ${createNumberInput(
-                    "ft_made",
-                    "FT",
-                    player.ft_made
-                )}
-
-                ${createNumberInput(
-                    "ft_attempted",
-                    "FTA",
-                    player.ft_attempted
-                )}
-
-                ${createNumberInput(
-                    "minutes",
-                    "MIN",
-                    player.minutes
-                )}
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    playersContainer.appendChild(
-        card
-    );
-
-
-    const removeButton =
-        card.querySelector(
-            ".remove-player"
-        );
-
-
-    removeButton.addEventListener(
-        "click",
-        function() {
-
-            card.remove();
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   INPUT TEXT
-============================================================ */
-
-function createInput(
-    name,
-    label,
-    value = ""
-) {
-
-    return `
-
-        <div>
-
-            <label
-                class="block text-xs text-slate-400 mb-1">
-                ${label}
-            </label>
-
-            <input
-                type="text"
-                data-field="${name}"
-                value="${escapeHtml(
-                    value ?? ""
-                )}"
-                class="w-full bg-slate-900 border border-slate-700
-                       rounded-lg px-3 py-2 text-sm text-white
-                       focus:border-blue-500 outline-none">
-
-        </div>
-
-    `;
-
-}
-
-
-/* ============================================================
-   INPUT NUMERICO
-============================================================ */
-
-function createNumberInput(
-    name,
-    label,
-    value = 0
-) {
-
-    return `
-
-        <div>
-
-            <label
-                class="block text-xs text-slate-400 mb-1">
-                ${label}
-            </label>
-
-            <input
-                type="number"
-                step="any"
-                min="0"
-                data-field="${name}"
-                value="${Number(value) || 0}"
-                class="w-full bg-slate-900 border border-slate-700
-                       rounded-lg px-3 py-2 text-sm text-white
-                       focus:border-blue-500 outline-none">
-
-        </div>
-
-    `;
-
-}
-
-
-/* ============================================================
-   ESCAPE HTML
-============================================================ */
-
-function escapeHtml(
-    value
-) {
-
-    return String(value)
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-/* ============================================================
-   AGGIUNGI GIOCATORE
-============================================================ */
-
-addPlayerBtn.addEventListener(
-    "click",
-    function() {
-
-        addPlayerCard({
-
-            name: "",
-
-            team: "",
-
-            position: "",
-
-            points: 0,
-
-            rebounds: 0,
-
-            assists: 0,
-
-            steals: 0,
-
-            blocks: 0,
-
-            turnovers: 0,
-
-            fg_made: 0,
-
-            fg_attempted: 0,
-
-            three_made: 0,
-
-            three_attempted: 0,
-
-            ft_made: 0,
-
-            ft_attempted: 0,
-
-            minutes: 0
-
-        });
-
-    }
-);
-
-
-/* ============================================================
-   LEGGI GIOCATORI
-============================================================ */
-
-function getPlayersFromForm() {
-
-    const cards =
-        document.querySelectorAll(
-            ".player-card"
-        );
-
-
-    const players = [];
-
-
-    cards.forEach(
-        function(card) {
-
-            function getValue(
-                field
-            ) {
-
-                const input =
-                    card.querySelector(
-                        `[data-field="${field}"]`
-                    );
-
-
-                return input
-                    ? input.value
-                    : "";
-
-            }
-
-
-            function getNumber(
-                field
-            ) {
-
-                const value =
-                    parseFloat(
-                        getValue(field)
-                    );
-
-
-                return Number.isFinite(
-                    value
-                )
-                    ? value
-                    : 0;
-
-            }
-
-
-            players.push({
-
-                name:
-                    getValue("name"),
-
-                team:
-                    getValue("team"),
-
-                position:
-                    getValue("position"),
-
-                points:
-                    getNumber("points"),
-
-                rebounds:
-                    getNumber("rebounds"),
-
-                assists:
-                    getNumber("assists"),
-
-                steals:
-                    getNumber("steals"),
-
-                blocks:
-                    getNumber("blocks"),
-
-                turnovers:
-                    getNumber("turnovers"),
-
-                fg_made:
-                    getNumber("fg_made"),
-
-                fg_attempted:
-                    getNumber("fg_attempted"),
-
-                three_made:
-                    getNumber("three_made"),
-
-                three_attempted:
-                    getNumber("three_attempted"),
-
-                ft_made:
-                    getNumber("ft_made"),
-
-                ft_attempted:
-                    getNumber("ft_attempted"),
-
-                minutes:
-                    getNumber("minutes")
-
-            });
-
-        }
-    );
-
-
-    return players;
-
-}
-
-
-/* ============================================================
-   SALVA SU SUPABASE
-============================================================ */
-
-saveButton.addEventListener(
-    "click",
-    async function() {
-
-        console.log(
-            "Salvataggio partita..."
-        );
-
-
-        const players =
-            getPlayersFromForm();
-
-
-        if (!players.length) {
-
-            showMessage(
-                "Non ci sono giocatori da salvare.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const invalidPlayer =
-            players.find(
-                function(player) {
-
-                    return !player.name.trim();
-
-                }
-            );
-
-
-        if (invalidPlayer) {
-
-            showMessage(
-                "Ogni giocatore deve avere un nome.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        saveButton.disabled =
-            true;
-
-
-        saveButton.classList.add(
-            "opacity-60",
-            "cursor-not-allowed"
-        );
-
-
-        saveButton.textContent =
-            "Salvataggio...";
-
-
-        try {
-
             /*
-             * Controlliamo l'utente autenticato.
+             * Convertiamo l'immagine in una versione
+             * ottimizzata prima di mandarla all'OCR.
              */
 
-            const {
-                data,
-                error: authError
-            } =
-                await supabaseClient.auth.getUser();
+            const optimizedImage =
+                await optimizeImage(selectedFile);
 
 
-            if (authError) {
+            const formData = new FormData();
 
-                throw authError;
+            formData.append(
+                "apikey",
+                apiKey
+            );
 
-            }
+            formData.append(
+                "language",
+                OCR_LANGUAGE
+            );
 
+            formData.append(
+                "isOverlayRequired",
+                "false"
+            );
 
-            const user =
-                data?.user;
+            formData.append(
+                "OCREngine",
+                OCR_ENGINE
+            );
 
+            formData.append(
+                "scale",
+                "true"
+            );
 
-            if (!user) {
-
-                throw new Error(
-                    "Utente non autenticato. Effettua nuovamente il login."
-                );
-
-            }
-
-
-            console.log(
-                "Utente autenticato:",
-                user.id
+            formData.append(
+                "file",
+                optimizedImage,
+                "nba2k-screenshot.jpg"
             );
 
 
-            /*
-             * Creiamo la partita.
-             */
-
-            const {
-                data: match,
-                error: matchError
-            } =
-                await supabaseClient
-                    .from("matches")
-                    .insert({
-
-                        user_id:
-                            user.id
-
-                    })
-                    .select()
-                    .single();
-
-
-            if (matchError) {
-
-                throw matchError;
-
-            }
-
-
-            console.log(
-                "Partita creata:",
-                match
-            );
-
-
-            /*
-             * Creiamo le righe giocatori.
-             */
-
-            const rows =
-                players.map(
-                    function(player) {
-
-                        return {
-
-                            match_id:
-                                match.id,
-
-                            user_id:
-                                user.id,
-
-                            name:
-                                player.name,
-
-                            team:
-                                player.team,
-
-                            position:
-                                player.position,
-
-                            points:
-                                player.points,
-
-                            rebounds:
-                                player.rebounds,
-
-                            assists:
-                                player.assists,
-
-                            steals:
-                                player.steals,
-
-                            blocks:
-                                player.blocks,
-
-                            turnovers:
-                                player.turnovers,
-
-                            fg_made:
-                                player.fg_made,
-
-                            fg_attempted:
-                                player.fg_attempted,
-
-                            three_made:
-                                player.three_made,
-
-                            three_attempted:
-                                player.three_attempted,
-
-                            ft_made:
-                                player.ft_made,
-
-                            ft_attempted:
-                                player.ft_attempted,
-
-                            minutes:
-                                player.minutes
-
-                        };
-
+            const response =
+                await fetch(
+                    OCR_API_URL,
+                    {
+                        method: "POST",
+                        body: formData
                     }
                 );
 
 
-            const {
-                error: playersError
-            } =
-                await supabaseClient
-                    .from("players")
-                    .insert(
-                        rows
-                    );
+            if (!response.ok) {
 
-
-            if (playersError) {
-
-                /*
-                 * Se l'inserimento giocatori fallisce,
-                 * segnaliamo chiaramente l'errore.
-                 */
-
-                console.error(
-                    "Errore inserimento players:",
-                    playersError
+                throw new Error(
+                    "HTTP error " +
+                    response.status
                 );
-
-
-                throw playersError;
 
             }
 
 
-            console.log(
-                "Giocatori salvati correttamente."
-            );
+            const data =
+                await response.json();
 
 
-            showMessage(
-                "✓ Partita salvata correttamente su Supabase!",
+            /*
+             * ====================================================
+             * CONTROLLO RISPOSTA OCR.SPACE
+             * ====================================================
+             */
+
+            if (data.IsErroredOnProcessing) {
+
+                let message =
+                    "OCR.space ha restituito un errore.";
+
+                if (Array.isArray(data.ErrorMessage)) {
+
+                    message =
+                        data.ErrorMessage.join("\n");
+
+                } else if (data.ErrorMessage) {
+
+                    message =
+                        data.ErrorMessage;
+
+                }
+
+                throw new Error(message);
+
+            }
+
+
+            if (
+                !data.ParsedResults ||
+                !data.ParsedResults.length
+            ) {
+
+                throw new Error(
+                    "Nessun testo trovato nello screenshot."
+                );
+
+            }
+
+
+            /*
+             * OCR.space può restituire più risultati.
+             *
+             * Li uniamo tutti.
+             */
+
+            const text =
+                data.ParsedResults
+                    .map(result => result.ParsedText || "")
+                    .join("\n")
+                    .trim();
+
+
+            if (!text) {
+
+                throw new Error(
+                    "L'OCR non ha riconosciuto alcun testo."
+                );
+
+            }
+
+
+            /*
+             * Mostriamo il risultato.
+             */
+
+            displayOCRResult(text);
+
+
+            showStatus(
+                "Screenshot analizzato correttamente.",
                 "success"
             );
 
 
-            saveButton.textContent =
-                "✓ Partita salvata";
-
-
-            saveButton.classList.remove(
-                "bg-green-600",
-                "hover:bg-green-500"
-            );
-
-
-            saveButton.classList.add(
-                "bg-green-700"
-            );
-
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
-                "Errore Supabase:",
+                "OCR ERROR:",
                 error
             );
 
 
-            showMessage(
-                "Errore nel salvataggio: " +
-                (
-                    error?.message ||
-                    "Errore sconosciuto."
-                ),
+            showStatus(
+                "Errore OCR: " +
+                error.message,
                 "error"
             );
 
+        } finally {
 
-            saveButton.disabled =
-                false;
-
-
-            saveButton.classList.remove(
-                "opacity-60",
-                "cursor-not-allowed"
-            );
-
-
-            saveButton.textContent =
-                "Salva partita su Supabase";
+            analyzeBtn.disabled = false;
 
         }
 
+    });
+
+
+    /*
+     * ============================================================
+     * OTTIMIZZAZIONE IMMAGINE
+     * ============================================================
+     *
+     * Aumentiamo la dimensione delle immagini piccole.
+     *
+     * Questo può aiutare molto quando NBA 2K presenta
+     * numeri/statistiche relativamente piccoli.
+     */
+
+    function optimizeImage(file) {
+
+        return new Promise((resolve, reject) => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload = function(event) {
+
+                const img =
+                    new Image();
+
+
+                img.onload = function() {
+
+                    let width = img.width;
+                    let height = img.height;
+
+
+                    /*
+                     * Larghezza minima consigliata.
+                     */
+
+                    const MIN_WIDTH = 1800;
+
+
+                    if (width < MIN_WIDTH) {
+
+                        const scale =
+                            MIN_WIDTH / width;
+
+                        width =
+                            Math.round(
+                                width * scale
+                            );
+
+                        height =
+                            Math.round(
+                                height * scale
+                            );
+
+                    }
+
+
+                    const canvas =
+                        document.createElement("canvas");
+
+
+                    canvas.width =
+                        width;
+
+                    canvas.height =
+                        height;
+
+
+                    const ctx =
+                        canvas.getContext("2d");
+
+
+                    /*
+                     * Sfondo bianco.
+                     */
+
+                    ctx.fillStyle = "#ffffff";
+
+                    ctx.fillRect(
+                        0,
+                        0,
+                        width,
+                        height
+                    );
+
+
+                    /*
+                     * Disegniamo lo screenshot.
+                     */
+
+                    ctx.drawImage(
+                        img,
+                        0,
+                        0,
+                        width,
+                        height
+                    );
+
+
+                    /*
+                     * JPEG qualità alta.
+                     */
+
+                    canvas.toBlob(
+                        blob => {
+
+                            if (!blob) {
+
+                                reject(
+                                    new Error(
+                                        "Impossibile ottimizzare l'immagine."
+                                    )
+                                );
+
+                                return;
+                            }
+
+
+                            resolve(blob);
+
+                        },
+                        "image/jpeg",
+                        0.95
+                    );
+
+                };
+
+
+                img.onerror = function() {
+
+                    reject(
+                        new Error(
+                            "Impossibile leggere l'immagine."
+                        )
+                    );
+
+                };
+
+
+                img.src =
+                    event.target.result;
+
+            };
+
+
+            reader.onerror = function() {
+
+                reject(
+                    new Error(
+                        "Errore durante la lettura del file."
+                    )
+                );
+
+            };
+
+
+            reader.readAsDataURL(file);
+
+        });
+
     }
-);
 
 
-/* ============================================================
-   LOGOUT
-============================================================ */
+    /*
+     * ============================================================
+     * RISULTATO
+     * ============================================================
+     */
 
-logoutButton.addEventListener(
-    "click",
-    async function() {
+    function displayOCRResult(text) {
 
-        console.log(
-            "Logout..."
-        );
+        ocrResult.value = text;
+
+        resultSection.style.display = "block";
+
+        updateCounters();
+
+        resultSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    /*
+     * ============================================================
+     * CONTATORI
+     * ============================================================
+     */
+
+    ocrResult.addEventListener(
+        "input",
+        updateCounters
+    );
+
+
+    function updateCounters() {
+
+        const text =
+            ocrResult.value;
+
+
+        characterCount.textContent =
+            text.length;
+
+
+        const words =
+            text
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+
+        wordCount.textContent =
+            text.trim()
+                ? words.length
+                : 0;
+
+
+        const lines =
+            text
+                ? text.split("\n").length
+                : 0;
+
+
+        lineCount.textContent =
+            lines;
+
+    }
+
+
+    /*
+     * ============================================================
+     * COPIA
+     * ============================================================
+     */
+
+    copyBtn.addEventListener("click", async () => {
+
+        const text =
+            ocrResult.value;
+
+
+        if (!text) {
+            return;
+        }
 
 
         try {
 
-            await supabaseClient.auth.signOut();
-
-        }
-        catch (error) {
-
-            console.error(
-                "Logout error:",
-                error
+            await navigator.clipboard.writeText(
+                text
             );
 
+            copyBtn.textContent =
+                "Copiato!";
+
+            setTimeout(() => {
+
+                copyBtn.textContent =
+                    "Copia testo";
+
+            }, 1500);
+
+        } catch (error) {
+
+            /*
+             * Fallback per browser che bloccano
+             * navigator.clipboard.
+             */
+
+            ocrResult.select();
+
+            document.execCommand("copy");
+
+            copyBtn.textContent =
+                "Copiato!";
+
+            setTimeout(() => {
+
+                copyBtn.textContent =
+                    "Copia testo";
+
+            }, 1500);
+
+        }
+
+    });
+
+
+    /*
+     * ============================================================
+     * DOWNLOAD TXT
+     * ============================================================
+     */
+
+    downloadBtn.addEventListener("click", () => {
+
+        const text =
+            ocrResult.value;
+
+
+        if (!text) {
+            return;
         }
 
 
-        window.location.href =
-            "login.html";
+        const blob =
+            new Blob(
+                [text],
+                {
+                    type: "text/plain;charset=utf-8"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            url;
+
+        link.download =
+            "nba2k-ocr.txt";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+
+        URL.revokeObjectURL(url);
+
+    });
+
+
+    /*
+     * ============================================================
+     * CANCELLA RISULTATO
+     * ============================================================
+     */
+
+    clearResultBtn.addEventListener("click", () => {
+
+        ocrResult.value = "";
+
+        updateCounters();
+
+        resultSection.style.display = "none";
+
+    });
+
+
+    /*
+     * ============================================================
+     * STATUS
+     * ============================================================
+     */
+
+    function showStatus(message, type) {
+
+        statusBox.innerHTML =
+            message;
+
+        statusBox.className =
+            "status " + type;
 
     }
-);
 
 
-/* ============================================================
-   FINE
-============================================================ */
+    function hideStatus() {
 
-console.log(
-    "NBA 2K27 Tracker Upload inizializzato correttamente."
-);
+        statusBox.className =
+            "status";
+
+        statusBox.innerHTML =
+            "";
+
+    }
+
+
+    /*
+     * ============================================================
+     * FORMATTAZIONE DIMENSIONE FILE
+     * ============================================================
+     */
+
+    function formatFileSize(bytes) {
+
+        if (bytes === 0) {
+            return "0 Bytes";
+        }
+
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+
+        const index =
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            );
+
+
+        return (
+            parseFloat(
+                (
+                    bytes /
+                    Math.pow(1024, index)
+                ).toFixed(2)
+            ) +
+            " " +
+            units[index]
+        );
+
+    }
 
 </script>
 
